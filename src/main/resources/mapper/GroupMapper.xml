@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.choerodon.gateway.helper.common.mapper.GroupMapper">
+    <select id="selectGroupsByUser" resultType="java.lang.String">
+        select hap_user_service.groups.code from user_groups
+        left join hap_user_service.groups on hap_user_service.groups.id = user_groups.groups_id
+        where user_groups.user_id = #{userId}
+    </select>
+</mapper>

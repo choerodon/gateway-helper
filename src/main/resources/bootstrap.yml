@@ -1,0 +1,17 @@
+server:
+  port: 9180
+spring:
+  application:
+    name: gateway-helper
+  cloud:
+    config:
+      retry:
+        maxAttempts: 6
+        multiplier: 1.1
+        maxInterval: 10000
+      enabled: false
+      uri: http://localhost:8010
+management:
+  port: 9181
+  security:
+    enabled: false

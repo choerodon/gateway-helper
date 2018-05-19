@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.choerodon.gateway.helper.permission.mapper.PermissionMapper">
+    <cache
+            eviction="LRU"
+            flushInterval="60000"
+            size="1024"
+            readOnly="true"
+    />
+
+    <select id="selectByUserIdAndServiceName"
+            resultType="io.choerodon.gateway.helper.permission.domain.PermissionDO">
+        SELECT
+        iam_member_role.source_id,
+        iam_member_role.source_type,
+        iam_permission.id,
+        iam_permission.code,
+        iam_permission.path,
+        iam_permission.method
+        FROM
+        iam_member_role
+        INNER JOIN iam_role_permission ON iam_member_role.role_id = iam_role_permission.role_id
+        INNER JOIN iam_role ON iam_role.id = iam_member_role.role_id AND iam_role.is_enabled = 1
+        INNER JOIN iam_permission ON iam_role_permission.permission_id = iam_permission.id AND iam_permission.level = iam_member_role.source_type
+        WHERE
+        iam_member_role.member_type = 'user' AND iam_permission.public_access = 0 AND iam_permission.login_access = 0 AND iam_member_role.member_id = #{userId} AND iam_permission.service_name = #{serviceName}
+    </select>
+
+    <select id="selectPublicOrLoginAccessPermissionsByServiceName"
+            resultType="io.choerodon.gateway.helper.permission.domain.PermissionDO">
+        SELECT
+        iam_permission.id,
+        iam_permission.code,
+        iam_permission.path,
+        iam_permission.method,
+        iam_permission.public_access,
+        iam_permission.login_access
+        FROM
+        iam_permission
+        WHERE
+        iam_permission.service_name = #{serviceName} AND (iam_permission.public_access = 1 OR iam_permission.login_access = 1)
+    </select>
+
+</mapper>
