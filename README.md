@@ -8,7 +8,7 @@ Gateway‘s check permission add rateLimit service. Authenticating and limiting 
 
 ## Requirements
 - This project is an eureka client project. To run in local, we need to cooperate with `register-server`, and the online operation needs to cooperate with `go-register-server`.
-- Need to cooperate with `api-gateway` to complete the gateway functions such as such as authentication, rateLimit.
+- Need to cooperate with `api-gateway` to complete the gateway functions such as authentication, rateLimit.
 
 
 ## Installation and Getting Started
