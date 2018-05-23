@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -38,10 +39,6 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
     private PermissionProperties permissionProperties;
 
     private PermissionMapper permissionMapper;
-
-    private static final String PROJECT_PATH = "/v1/projects/";
-
-    private static final String ORGANIZATION_PATH = "/v1/organizations/";
 
     public RequestPermissionFilterImpl(ZuulRoutesProperties zuulRoutesProperties,
                                        PermissionProperties permissionProperties,
@@ -109,46 +106,30 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
                 if (permissionDO.getSourceType().equals(ResourceLevel.SITE.value())) {
                     return true;
                 }
-                if (requestInfo.trueUri.startsWith(PROJECT_PATH)) {
-                    String uri = requestInfo.trueUri.substring(PROJECT_PATH.length(), requestInfo.trueUri.length());
-                    int place = uri.indexOf('/');
-                    if (place < 0) {
-                        try {
-                            if (Long.parseLong(uri) == permissionDO.getSourceId()) {
-                                return true;
-                            } else {
-                                continue;
-                            }
-                        } catch (NumberFormatException e) {
-                        }
-                    }else {
-                        String id = uri.split("/")[0];
-                        if (Long.parseLong(id) == permissionDO.getSourceId()) {
-                            return true;
-                        } else {
-                            continue;
-                        }
-                    }
+                Map<String, String> map = matcher.extractUriTemplateVariables(permissionDO.getPath(), requestInfo.trueUri);
+                if (map.size() < 1) {
+                    return true;
                 }
-                if (requestInfo.trueUri.startsWith(ORGANIZATION_PATH)) {
-                    String uri = requestInfo.trueUri.substring(ORGANIZATION_PATH.length(), requestInfo.trueUri.length());
-                    int place = uri.indexOf('/');
-                    if (place < 0) {
-                        try {
-                            if (Long.parseLong(uri) == permissionDO.getSourceId()) {
-                                return true;
-                            } else {
-                                continue;
-                            }
-                        } catch (NumberFormatException e) {
-                        }
-                    } else {
-                       String id = uri.split("/")[0];
-                        if (Long.parseLong(id) == permissionDO.getSourceId()) {
+                String id = null;
+                if (map.containsKey("project_id")) {
+                    id = map.get("project_id");
+                }else if (map.containsKey("organization_id")) {
+                    id = ("organization_id");
+                }else if (map.containsKey("projectId")) {
+                    id = ("projectId");
+                }else if (map.containsKey("organizationId")) {
+                    id = map.get("organizationId");
+                }
+                if (StringUtils.isEmpty(id)) {
+                    return true;
+                } else {
+                    try {
+                        long sourceId = Long.parseLong(id);
+                        if (sourceId == permissionDO.getSourceId()) {
                             return true;
-                        } else {
-                            continue;
                         }
+                    } catch (NumberFormatException e) {
+                       LOGGER.debug("error.parse.sourceId {}", e.getCause());
                     }
                 }
                 return true;
