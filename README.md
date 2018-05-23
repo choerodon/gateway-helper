@@ -7,11 +7,11 @@ Permissions check, traffic restrictions service. Authenticating and limiting the
 - Add a custom `gateway-helper` demo
 
 ## Requirements
-- This service is an eureka client service. To run in local, we need to cooperate with `register-server`, and the online operation needs to cooperate with `go-register-server`.
+- This service is an eureka client service. To run in local, we need to cooperate with `eureka-server`, and the online operation needs to cooperate with `go-register-server`.
 - Need to cooperate with `api-gateway` to complete the gateway functions such as authentication, rateLimit.
 
 ## Installation and Getting Started
-- run `register-server`
+- run `eureka-server`
 - run `mysql`，ensure that the database table of `iam_service` has been initialized
 - Go to the project directory and run `mvn spring-boot:run`
 
