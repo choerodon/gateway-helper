@@ -3,14 +3,14 @@ package io.choerodon.gateway.helper.permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
-import io.choerodon.gateway.helper.common.ZuulRoutesProperties;
 import io.choerodon.gateway.helper.common.utils.ZuulPathUtils;
 import io.choerodon.gateway.helper.permission.domain.PermissionDO;
 import io.choerodon.gateway.helper.permission.mapper.PermissionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.config.client.ZuulRoute;
+import org.springframework.cloud.config.helper.HelperZuulRoutesProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.util.AntPathMatcher;
 
@@ -33,7 +33,7 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
     @Value("${choerodon.permission.cacheTime:1800000}")
     private Long permissionCacheTime;
 
-    private ZuulRoutesProperties zuulRoutesProperties;
+    private HelperZuulRoutesProperties helperZuulRoutesProperties;
 
     private PermissionProperties permissionProperties;
 
@@ -43,10 +43,10 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
 
     private static final String ORGANIZATION_PATH = "/v1/organizations/";
 
-    public RequestPermissionFilterImpl(ZuulRoutesProperties zuulRoutesProperties,
+    public RequestPermissionFilterImpl(HelperZuulRoutesProperties helperZuulRoutesProperties,
                                        PermissionProperties permissionProperties,
                                        PermissionMapper permissionMapper) {
-        this.zuulRoutesProperties = zuulRoutesProperties;
+        this.helperZuulRoutesProperties = helperZuulRoutesProperties;
         this.permissionProperties = permissionProperties;
         this.permissionMapper = permissionMapper;
     }
@@ -74,10 +74,10 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
             }
         }
         //如果获取不到该服务的路由信息，则不允许通过
-        ZuulProperties.ZuulRoute route = ZuulPathUtils.getRoute(requestURI, zuulRoutesProperties.getRoutes());
+        ZuulRoute route = ZuulPathUtils.getRoute(requestURI, helperZuulRoutesProperties.getRoutes());
         if (route == null) {
             LOGGER.info("error.permissionVerifier.permission, can't find request service route, "
-                    + "request uri {}, zuulRoutes {}", request.getRequestURI(), zuulRoutesProperties.getRoutes());
+                    + "request uri {}, zuulRoutes {}", request.getRequestURI(), helperZuulRoutesProperties.getRoutes());
             return false;
         }
         String requestTruePath = ZuulPathUtils.getRequestTruePath(requestURI, route.getPath());
@@ -121,7 +121,7 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
                             }
                         } catch (NumberFormatException e) {
                         }
-                    }else {
+                    } else {
                         String id = uri.split("/")[0];
                         if (Long.parseLong(id) == permissionDO.getSourceId()) {
                             return true;
@@ -143,7 +143,7 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
                         } catch (NumberFormatException e) {
                         }
                     } else {
-                       String id = uri.split("/")[0];
+                        String id = uri.split("/")[0];
                         if (Long.parseLong(id) == permissionDO.getSourceId()) {
                             return true;
                         } else {

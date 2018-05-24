@@ -1,7 +1,6 @@
 package io.choerodon.gateway.helper.common.utils;
 
-import io.choerodon.gateway.helper.common.ZuulRoutesProperties;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.config.client.ZuulRoute;
 import org.springframework.util.AntPathMatcher;
 
 import java.util.Map;
@@ -33,9 +32,9 @@ public class ZuulPathUtils {
         return Optional.empty();
     }
 
-    public static ZuulProperties.ZuulRoute getRoute(final String requestUri,
-                                                    final Map<String, ZuulProperties.ZuulRoute> routeMap) {
-        for (ZuulProperties.ZuulRoute zuulRoute : routeMap.values()) {
+    public static ZuulRoute getRoute(final String requestUri,
+                                     final Map<String, ZuulRoute> routeMap) {
+        for (ZuulRoute zuulRoute : routeMap.values()) {
             if (MATCHER.match(zuulRoute.getPath(), requestUri)) {
                 return zuulRoute;
             }
