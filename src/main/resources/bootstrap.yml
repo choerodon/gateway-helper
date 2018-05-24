@@ -11,6 +11,7 @@ spring:
         maxInterval: 10000
       enabled: false
       uri: http://localhost:8010
+      fail-fast: true
 management:
   port: 9181
   security:
