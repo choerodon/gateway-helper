@@ -7,9 +7,9 @@ import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
 import io.choerodon.core.oauth.CustomClientDetails;
 import io.choerodon.core.oauth.CustomUserDetails;
-import io.choerodon.gateway.helper.common.domain.UserDO;
-import io.choerodon.gateway.helper.common.mapper.UserMapper;
 import io.choerodon.gateway.helper.common.utils.FilterConstants;
+import io.choerodon.gateway.helper.permission.domain.UserDO;
+import io.choerodon.gateway.helper.permission.mapper.UserMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -81,14 +81,6 @@ public class JwtAddFilter extends ZuulFilter {
             ctx.getResponse().setContentType("text/plain");
             ctx.set(FilterConstants.ACCESS_TOKEN, jwt);
             //todo 添加查询label逻辑
-            /*if (details.getUserId() != null) {
-                List<String> groups = groupMapper.selectGroupsByUser(details.getUserId());
-                if (!groups.isEmpty()) {
-                    String label = String.join(",", groupMapper.selectGroupsByUser(details.getUserId()));
-                    RequestVariableHolder.LABEL.set(label);
-                    ctx.getResponse().setHeader(HEADER_LABEL, label);
-                }
-            }*/
         } catch (JsonProcessingException e) {
             LOGGER.warn("error happened when add JWT : {}", e.toString());
         }
@@ -107,9 +99,6 @@ public class JwtAddFilter extends ZuulFilter {
 
 
     private CustomUserDetails getCustomUserDetails(final RequestContext ctx) {
-        /*if (!permissionProperties.isEnabled()) {
-            return this.defaultUser;
-        }*/
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) {
             return null;

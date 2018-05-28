@@ -6,6 +6,7 @@ import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.gateway.helper.common.utils.ZuulPathUtils;
 import io.choerodon.gateway.helper.permission.domain.PermissionDO;
 import io.choerodon.gateway.helper.permission.mapper.PermissionMapper;
+import io.choerodon.gateway.helper.permission.mapper.UserMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,21 +40,27 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
 
     private PermissionMapper permissionMapper;
 
+    private UserMapper userMapper;
+
     private static final String PROJECT_PATH = "/v1/projects/";
 
     private static final String ORGANIZATION_PATH = "/v1/organizations/";
 
     public RequestPermissionFilterImpl(HelperZuulRoutesProperties helperZuulRoutesProperties,
                                        PermissionProperties permissionProperties,
-                                       PermissionMapper permissionMapper) {
+                                       PermissionMapper permissionMapper,
+                                       UserMapper userMapper) {
         this.helperZuulRoutesProperties = helperZuulRoutesProperties;
         this.permissionProperties = permissionProperties;
         this.permissionMapper = permissionMapper;
+        this.userMapper = userMapper;
     }
 
     private final Map<String, Long> publicPermissionMap = new HashMap<>();
 
     private final Map<String, Long> loginPermissionMap = new HashMap<>();
+
+    private final Map<Long, Long> adminUserMap = new HashMap<>();
 
     private final AntPathMatcher matcher = new AntPathMatcher();
 
@@ -84,6 +91,10 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
         final RequestInfo requestInfo = new RequestInfo(requestURI, requestTruePath,
                 route.getServiceId(), request.getMethod());
         final CustomUserDetails details = DetailsHelper.getUserDetails();
+        //如果是超级管理员用户，则跳过权限校验
+        if (passAdminPermission(details)) {
+            return true;
+        }
         //判断是不是public接口获取loginAccess接口
         if (passPublicOrLoginAccessPermission(requestInfo, details)) {
             return true;
@@ -97,6 +108,26 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
             return true;
         }
         LOGGER.info("error.permissionVerifier.permission when passSourcePermission {}", requestInfo);
+        return false;
+    }
+
+    private boolean passAdminPermission(final CustomUserDetails details) {
+        if (details == null || details.getUserId() == null) {
+            return false;
+        }
+        Long permissionTime = adminUserMap.get(details.getUserId());
+        if (permissionTime != null) {
+            if (System.currentTimeMillis() - permissionTime < permissionCacheTime) {
+                return true;
+            } else {
+                adminUserMap.remove(details.getUserId());
+            }
+        }
+        Boolean isAdmin = userMapper.isAdmin(details.getUserId());
+        if (isAdmin != null && isAdmin) {
+            adminUserMap.put(details.getUserId(), System.currentTimeMillis());
+            return true;
+        }
         return false;
     }
 
@@ -174,7 +205,6 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
             } else {
                 loginPermissionMap.remove(requestInfo.key);
             }
-            return true;
         }
         final List<PermissionDO> publicOrLoginPermissions = permissionMapper.selectPublicOrLoginAccessPermissionsByServiceName(requestInfo.service);
         for (PermissionDO permissionDO : publicOrLoginPermissions) {
