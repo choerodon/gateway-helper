@@ -43,6 +43,7 @@ public class CustomPrincipalExtractor implements PrincipalExtractor {
                     "unknown password", Collections.emptyList());
             user.setUserId((long) (Integer) map.get("userId"));
             user.setLanguage((String) map.get("language"));
+            user.setAdmin((Boolean) map.get("admin"));
             user.setTimeZone((String) map.get("timeZone"));
             user.setOrganizationId((long) (Integer) map.get("organizationId"));
 
