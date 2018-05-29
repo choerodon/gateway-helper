@@ -84,6 +84,10 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
         final RequestInfo requestInfo = new RequestInfo(requestURI, requestTruePath,
                 route.getServiceId(), request.getMethod());
         final CustomUserDetails details = DetailsHelper.getUserDetails();
+        //如果是超级管理员用户，则跳过权限校验
+        if (details != null && details.getAdmin() != null && details.getAdmin()) {
+            return true;
+        }
         //判断是不是public接口获取loginAccess接口
         if (passPublicOrLoginAccessPermission(requestInfo, details)) {
             return true;
@@ -99,6 +103,7 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
         LOGGER.info("error.permissionVerifier.permission when passSourcePermission {}", requestInfo);
         return false;
     }
+
 
     private boolean passSourcePermission(final RequestInfo requestInfo, final long userId) {
         final List<PermissionDO> resourcePermissions = permissionMapper.selectByUserIdAndServiceName(userId, requestInfo.service);
@@ -174,7 +179,6 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
             } else {
                 loginPermissionMap.remove(requestInfo.key);
             }
-            return true;
         }
         final List<PermissionDO> publicOrLoginPermissions = permissionMapper.selectPublicOrLoginAccessPermissionsByServiceName(requestInfo.service);
         for (PermissionDO permissionDO : publicOrLoginPermissions) {

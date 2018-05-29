@@ -5,16 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.hystrix.strategy.concurrency.HystrixRequestContext;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
-import io.choerodon.core.oauth.CustomClientDetails;
 import io.choerodon.core.oauth.CustomUserDetails;
-import io.choerodon.gateway.helper.common.domain.UserDO;
-import io.choerodon.gateway.helper.common.mapper.UserMapper;
+import io.choerodon.core.oauth.DetailsHelper;
 import io.choerodon.gateway.helper.common.utils.FilterConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.Signer;
 import org.springframework.stereotype.Component;
@@ -39,14 +35,11 @@ public class JwtAddFilter extends ZuulFilter {
 
     private Signer jwtSigner;
 
-    private UserMapper userMapper;
-
     private ObjectMapper mapper;
 
     private CustomUserDetails defaultUser;
 
-    public JwtAddFilter(UserMapper userMapper, Signer jwtSigner) {
-        this.userMapper = userMapper;
+    public JwtAddFilter(Signer jwtSigner) {
         this.jwtSigner = jwtSigner;
         mapper = new ObjectMapper();
         defaultUser = new CustomUserDetails("admin", DEFAULT_PASS, Collections.emptyList());
@@ -66,31 +59,22 @@ public class JwtAddFilter extends ZuulFilter {
         if (!HystrixRequestContext.isCurrentThreadInitialized()) {
             HystrixRequestContext.initializeContext();
         }
-        CustomUserDetails details = getCustomUserDetails(ctx);
+        final CustomUserDetails details = DetailsHelper.getUserDetails();
         if (details == null) {
             LOGGER.info("can't get customUserDetails, add JWT failed, request uri {} method {} ",
                     ctx.getRequest().getRequestURI(), ctx.getRequest().getMethod());
-            return false;
-        }
-        try {
-            String token = mapper.writeValueAsString(details);
-            String jwt = "Bearer " + JwtHelper.encode(token, jwtSigner).getEncoded();
-            ctx.getResponse().setHeader(HEADER_TOKEN, jwt);
-            ctx.setResponseStatusCode(HttpStatus.OK.value());
-            ctx.setResponseBody("");
-            ctx.getResponse().setContentType("text/plain");
-            ctx.set(FilterConstants.ACCESS_TOKEN, jwt);
-            //todo 添加查询label逻辑
-            /*if (details.getUserId() != null) {
-                List<String> groups = groupMapper.selectGroupsByUser(details.getUserId());
-                if (!groups.isEmpty()) {
-                    String label = String.join(",", groupMapper.selectGroupsByUser(details.getUserId()));
-                    RequestVariableHolder.LABEL.set(label);
-                    ctx.getResponse().setHeader(HEADER_LABEL, label);
-                }
-            }*/
-        } catch (JsonProcessingException e) {
-            LOGGER.warn("error happened when add JWT : {}", e.toString());
+        } else {
+            try {
+                String token = mapper.writeValueAsString(details);
+                String jwt = "Bearer " + JwtHelper.encode(token, jwtSigner).getEncoded();
+                ctx.getResponse().setHeader(HEADER_TOKEN, jwt);
+                ctx.setResponseStatusCode(HttpStatus.OK.value());
+                ctx.setResponseBody("");
+                ctx.getResponse().setContentType("text/plain");
+                ctx.set(FilterConstants.ACCESS_TOKEN, jwt);
+            } catch (JsonProcessingException e) {
+                LOGGER.warn("error happened when add JWT : {}", e.toString());
+            }
         }
         return null;
     }
@@ -106,31 +90,4 @@ public class JwtAddFilter extends ZuulFilter {
     }
 
 
-    private CustomUserDetails getCustomUserDetails(final RequestContext ctx) {
-        /*if (!permissionProperties.isEnabled()) {
-            return this.defaultUser;
-        }*/
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null) {
-            return null;
-        }
-        if (auth.getPrincipal() instanceof CustomUserDetails) {
-            return (CustomUserDetails) auth.getPrincipal();
-        }
-        if (auth.getPrincipal() instanceof CustomClientDetails
-                && ctx.getRequest().getHeader("username") != null) {
-            String username = ctx.getRequest().getHeader("username");
-            UserDO userDO = new UserDO();
-            userDO.setLoginName(username);
-            userDO = userMapper.selectOne(userDO);
-            if (userDO != null) {
-                CustomUserDetails details = new CustomUserDetails(username, DEFAULT_PASS, Collections.emptyList());
-                details.setUserId(userDO.getId());
-                details.setLanguage(userDO.getLanguage());
-                details.setTimeZone(userDO.getTimeZone());
-                details.setOrganizationId(userDO.getOrganizationId());
-            }
-        }
-        return null;
-    }
 }
