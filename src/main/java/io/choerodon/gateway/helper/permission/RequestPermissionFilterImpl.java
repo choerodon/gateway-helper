@@ -65,7 +65,7 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
         //如果是文件上传的url，以/zuul/开否，则去除了/zuul再进行校验权限
         String requestURI = request.getRequestURI();
         if (requestURI.startsWith(ZUUL_SERVLET_PATH)) {
-            requestURI = requestURI.substring(4, requestURI.length());
+            requestURI = requestURI.substring(5, requestURI.length());
         }
         //skipPath直接返回true
         for (String skipPath : permissionProperties.getSkipPaths()) {
