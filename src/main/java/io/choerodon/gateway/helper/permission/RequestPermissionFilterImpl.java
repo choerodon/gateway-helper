@@ -129,7 +129,7 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
         if (permissionDO.getSourceType().equals(ResourceLevel.PROJECT.value()) && map.containsKey(PROJECT_PATH_ID)) {
             String projectId = map.get(PROJECT_PATH_ID);
             return isInteger(projectId) && Long.parseLong(projectId) == permissionDO.getSourceId();
-        } else if (permissionDO.getSourceType().equals(ResourceLevel.ORGANIZATION.value()) && map.containsKey()) {
+        } else if (permissionDO.getSourceType().equals(ResourceLevel.ORGANIZATION.value()) && map.containsKey(ORG_PATH_ID)) {
             String organizationId = map.get(ORG_PATH_ID);
             return isInteger(organizationId) && Long.parseLong(organizationId) == permissionDO.getSourceId();
         }
