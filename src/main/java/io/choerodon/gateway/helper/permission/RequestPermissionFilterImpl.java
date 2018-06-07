@@ -93,7 +93,8 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
             return true;
         }
         //判断是不是public接口获取loginAccess接口
-        if (passPublicOrLoginAccessPermission(requestInfo, details)) {
+        if (passPublicOrLoginAccessPermissionByMap(requestInfo, details)
+                || passPublicOrLoginAccessPermissionBySql(requestInfo, details)) {
             return true;
         }
         if (details == null || details.getUserId() == null) {
@@ -140,8 +141,8 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
         return !StringUtils.isEmpty(str) && NUM_PATTERN.matcher(str).matches();
     }
 
-    private boolean passPublicOrLoginAccessPermission(final RequestInfo requestInfo,
-                                                      final CustomUserDetails details) {
+    private boolean passPublicOrLoginAccessPermissionByMap(final RequestInfo requestInfo,
+                                                           final CustomUserDetails details) {
         Long permissionTime = publicPermissionMap.get(requestInfo.key);
         if (permissionTime != null) {
             if (System.currentTimeMillis() - permissionTime < permissionCacheTime) {
@@ -158,6 +159,11 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
                 loginPermissionMap.remove(requestInfo.key);
             }
         }
+        return false;
+    }
+
+    private boolean passPublicOrLoginAccessPermissionBySql(final RequestInfo requestInfo,
+                                                           final CustomUserDetails details) {
         final List<PermissionDO> publicOrLoginPermissions = permissionMapper.selectPublicOrLoginAccessPermissionsByServiceName(requestInfo.service);
         for (PermissionDO permissionDO : publicOrLoginPermissions) {
             boolean match = matcher.match(permissionDO.getPath(), requestInfo.trueUri)
@@ -172,8 +178,8 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
             }
         }
         return false;
-    }
 
+    }
 
     private static class RequestInfo {
         final String uri;
