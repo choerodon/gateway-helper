@@ -13,11 +13,13 @@ import org.springframework.cloud.config.client.ZuulRoute;
 import org.springframework.cloud.config.helper.HelperZuulRoutesProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * @author flyleft
@@ -39,9 +41,11 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
 
     private PermissionMapper permissionMapper;
 
-    private static final String PROJECT_PATH = "/v1/projects/";
+    private static final Pattern NUM_PATTERN = Pattern.compile("^[-\\+]?[\\d]*$");
 
-    private static final String ORGANIZATION_PATH = "/v1/organizations/";
+    private static final String PROJECT_PATH_ID = "project_id";
+
+    private static final String ORG_PATH_ID = "organization_id";
 
     public RequestPermissionFilterImpl(HelperZuulRoutesProperties helperZuulRoutesProperties,
                                        PermissionProperties permissionProperties,
@@ -89,7 +93,8 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
             return true;
         }
         //判断是不是public接口获取loginAccess接口
-        if (passPublicOrLoginAccessPermission(requestInfo, details)) {
+        if (passPublicOrLoginAccessPermissionByMap(requestInfo, details)
+                || passPublicOrLoginAccessPermissionBySql(requestInfo, details)) {
             return true;
         }
         if (details == null || details.getUserId() == null) {
@@ -104,66 +109,40 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
         return false;
     }
 
-
     private boolean passSourcePermission(final RequestInfo requestInfo, final long userId) {
         final List<PermissionDO> resourcePermissions = permissionMapper.selectByUserIdAndServiceName(userId, requestInfo.service);
         for (PermissionDO permissionDO : resourcePermissions) {
             boolean match = matcher.match(permissionDO.getPath(), requestInfo.trueUri)
                     && requestInfo.method.equalsIgnoreCase(permissionDO.getMethod());
             if (match) {
-                if (permissionDO.getSourceType().equals(ResourceLevel.SITE.value())) {
-                    return true;
-                }
-                if (requestInfo.trueUri.startsWith(PROJECT_PATH)) {
-                    String uri = requestInfo.trueUri.substring(PROJECT_PATH.length(), requestInfo.trueUri.length());
-                    int place = uri.indexOf('/');
-                    if (place < 0) {
-                        try {
-                            if (Long.parseLong(uri) == permissionDO.getSourceId()) {
-                                return true;
-                            } else {
-                                continue;
-                            }
-                        } catch (NumberFormatException e) {
-                        }
-                    } else {
-                        String id = uri.split("/")[0];
-                        if (Long.parseLong(id) == permissionDO.getSourceId()) {
-                            return true;
-                        } else {
-                            continue;
-                        }
-                    }
-                }
-                if (requestInfo.trueUri.startsWith(ORGANIZATION_PATH)) {
-                    String uri = requestInfo.trueUri.substring(ORGANIZATION_PATH.length(), requestInfo.trueUri.length());
-                    int place = uri.indexOf('/');
-                    if (place < 0) {
-                        try {
-                            if (Long.parseLong(uri) == permissionDO.getSourceId()) {
-                                return true;
-                            } else {
-                                continue;
-                            }
-                        } catch (NumberFormatException e) {
-                        }
-                    } else {
-                        String id = uri.split("/")[0];
-                        if (Long.parseLong(id) == permissionDO.getSourceId()) {
-                            return true;
-                        } else {
-                            continue;
-                        }
-                    }
-                }
-                return true;
+                return permissionDO.getSourceType().equals(ResourceLevel.SITE.value())
+                        || passProjectOrOrgPermission(permissionDO, requestInfo);
             }
         }
         return false;
     }
 
+    private boolean passProjectOrOrgPermission(final PermissionDO permissionDO, final RequestInfo requestInfo) {
+        Map<String, String> map = matcher.extractUriTemplateVariables(permissionDO.getPath(), requestInfo.trueUri);
+        if (map.size() < 1) {
+            return true;
+        }
+        if (permissionDO.getSourceType().equals(ResourceLevel.PROJECT.value()) && map.containsKey(PROJECT_PATH_ID)) {
+            String projectId = map.get(PROJECT_PATH_ID);
+            return isInteger(projectId) && Long.parseLong(projectId) == permissionDO.getSourceId();
+        } else if (permissionDO.getSourceType().equals(ResourceLevel.ORGANIZATION.value()) && map.containsKey(ORG_PATH_ID)) {
+            String organizationId = map.get(ORG_PATH_ID);
+            return isInteger(organizationId) && Long.parseLong(organizationId) == permissionDO.getSourceId();
+        }
+        return false;
+    }
 
-    private boolean passPublicOrLoginAccessPermission(final RequestInfo requestInfo, final CustomUserDetails details) {
+    private static boolean isInteger(String str) {
+        return !StringUtils.isEmpty(str) && NUM_PATTERN.matcher(str).matches();
+    }
+
+    private boolean passPublicOrLoginAccessPermissionByMap(final RequestInfo requestInfo,
+                                                           final CustomUserDetails details) {
         Long permissionTime = publicPermissionMap.get(requestInfo.key);
         if (permissionTime != null) {
             if (System.currentTimeMillis() - permissionTime < permissionCacheTime) {
@@ -180,6 +159,11 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
                 loginPermissionMap.remove(requestInfo.key);
             }
         }
+        return false;
+    }
+
+    private boolean passPublicOrLoginAccessPermissionBySql(final RequestInfo requestInfo,
+                                                           final CustomUserDetails details) {
         final List<PermissionDO> publicOrLoginPermissions = permissionMapper.selectPublicOrLoginAccessPermissionsByServiceName(requestInfo.service);
         for (PermissionDO permissionDO : publicOrLoginPermissions) {
             boolean match = matcher.match(permissionDO.getPath(), requestInfo.trueUri)
@@ -194,6 +178,7 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
             }
         }
         return false;
+
     }
 
     private static class RequestInfo {
@@ -203,7 +188,7 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
         final String method;
         final String key;
 
-        public RequestInfo(String uri, String trueUri, String service, String method) {
+        private RequestInfo(String uri, String trueUri, String service, String method) {
             this.uri = uri;
             this.trueUri = trueUri;
             this.service = service;
