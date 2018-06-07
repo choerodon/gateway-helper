@@ -110,26 +110,24 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
             boolean match = matcher.match(permissionDO.getPath(), requestInfo.trueUri)
                     && requestInfo.method.equalsIgnoreCase(permissionDO.getMethod());
             if (match) {
-                if (permissionDO.getSourceType().equals(ResourceLevel.SITE.value())) {
-                    return true;
-                }
-                Map<String, String> map = matcher.extractUriTemplateVariables(permissionDO.getPath(), requestInfo.trueUri);
-                if (map.size() < 1) {
-                    return true;
-                }
-
-                if (permissionDO.getSourceType().equals(ResourceLevel.PROJECT.value()) && map.containsKey("project_id")) {
-                    String projectId = map.get("project_id");
-                    if (isInteger(projectId) && Long.parseLong(projectId) == permissionDO.getSourceId()) {
-                        return true;
-                    }
-                } else if (permissionDO.getSourceType().equals(ResourceLevel.ORGANIZATION.value()) && map.containsKey("organization_id")) {
-                    String organizationId = map.get("organization_id");
-                    if (isInteger(organizationId) && Long.parseLong(organizationId) == permissionDO.getSourceId()) {
-                        return true;
-                    }
-                }
+                return permissionDO.getSourceType().equals(ResourceLevel.SITE.value())
+                        || passProjectOrOrgPermission(permissionDO, requestInfo);
             }
+        }
+        return false;
+    }
+
+    private boolean passProjectOrOrgPermission(final PermissionDO permissionDO, final RequestInfo requestInfo) {
+        Map<String, String> map = matcher.extractUriTemplateVariables(permissionDO.getPath(), requestInfo.trueUri);
+        if (map.size() < 1) {
+            return true;
+        }
+        if (permissionDO.getSourceType().equals(ResourceLevel.PROJECT.value()) && map.containsKey("project_id")) {
+            String projectId = map.get("project_id");
+            return isInteger(projectId) && Long.parseLong(projectId) == permissionDO.getSourceId();
+        } else if (permissionDO.getSourceType().equals(ResourceLevel.ORGANIZATION.value()) && map.containsKey("organization_id")) {
+            String organizationId = map.get("organization_id");
+            return isInteger(organizationId) && Long.parseLong(organizationId) == permissionDO.getSourceId();
         }
         return false;
     }
