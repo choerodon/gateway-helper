@@ -112,11 +112,12 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
     private boolean passSourcePermission(final RequestInfo requestInfo, final long userId) {
         final List<PermissionDO> resourcePermissions = permissionMapper.selectByUserIdAndServiceName(userId, requestInfo.service);
         for (PermissionDO permissionDO : resourcePermissions) {
-            boolean match = matcher.match(permissionDO.getPath(), requestInfo.trueUri)
-                    && requestInfo.method.equalsIgnoreCase(permissionDO.getMethod());
-            if (match) {
-                return permissionDO.getSourceType().equals(ResourceLevel.SITE.value())
-                        || passProjectOrOrgPermission(permissionDO, requestInfo);
+            boolean pass = matcher.match(permissionDO.getPath(), requestInfo.trueUri)
+                    && requestInfo.method.equalsIgnoreCase(permissionDO.getMethod())
+                    && (permissionDO.getSourceType().equals(ResourceLevel.SITE.value())
+                    || passProjectOrOrgPermission(permissionDO, requestInfo));
+            if (pass) {
+                return true;
             }
         }
         return false;
