@@ -43,6 +43,10 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
 
     private static final Pattern NUM_PATTERN = Pattern.compile("^[-\\+]?[\\d]*$");
 
+    private static final String PROJECT_PATH_ID = "project_id";
+
+    private static final String ORG_PATH_ID = "organization_id";
+
     public RequestPermissionFilterImpl(HelperZuulRoutesProperties helperZuulRoutesProperties,
                                        PermissionProperties permissionProperties,
                                        PermissionMapper permissionMapper) {
@@ -122,10 +126,10 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
         if (map.size() < 1) {
             return true;
         }
-        if (permissionDO.getSourceType().equals(ResourceLevel.PROJECT.value()) && map.containsKey("project_id")) {
+        if (permissionDO.getSourceType().equals(ResourceLevel.PROJECT.value()) && map.containsKey(PROJECT_PATH_ID)) {
             String projectId = map.get("project_id");
             return isInteger(projectId) && Long.parseLong(projectId) == permissionDO.getSourceId();
-        } else if (permissionDO.getSourceType().equals(ResourceLevel.ORGANIZATION.value()) && map.containsKey("organization_id")) {
+        } else if (permissionDO.getSourceType().equals(ResourceLevel.ORGANIZATION.value()) && map.containsKey(ORG_PATH_ID)) {
             String organizationId = map.get("organization_id");
             return isInteger(organizationId) && Long.parseLong(organizationId) == permissionDO.getSourceId();
         }
