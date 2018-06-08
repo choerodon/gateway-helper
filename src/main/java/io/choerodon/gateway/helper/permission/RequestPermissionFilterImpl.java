@@ -3,21 +3,23 @@ package io.choerodon.gateway.helper.permission;
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.core.oauth.CustomUserDetails;
 import io.choerodon.core.oauth.DetailsHelper;
-import io.choerodon.gateway.helper.common.ZuulRoutesProperties;
 import io.choerodon.gateway.helper.common.utils.ZuulPathUtils;
 import io.choerodon.gateway.helper.permission.domain.PermissionDO;
 import io.choerodon.gateway.helper.permission.mapper.PermissionMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.config.client.ZuulRoute;
+import org.springframework.cloud.config.helper.HelperZuulRoutesProperties;
 import org.springframework.stereotype.Service;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * @author flyleft
@@ -33,20 +35,22 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
     @Value("${choerodon.permission.cacheTime:1800000}")
     private Long permissionCacheTime;
 
-    private ZuulRoutesProperties zuulRoutesProperties;
+    private HelperZuulRoutesProperties helperZuulRoutesProperties;
 
     private PermissionProperties permissionProperties;
 
     private PermissionMapper permissionMapper;
 
-    private static final String PROJECT_PATH = "/v1/projects/";
+    private static final Pattern NUM_PATTERN = Pattern.compile("^[-\\+]?[\\d]*$");
 
-    private static final String ORGANIZATION_PATH = "/v1/organizations/";
+    private static final String PROJECT_PATH_ID = "project_id";
 
-    public RequestPermissionFilterImpl(ZuulRoutesProperties zuulRoutesProperties,
+    private static final String ORG_PATH_ID = "organization_id";
+
+    public RequestPermissionFilterImpl(HelperZuulRoutesProperties helperZuulRoutesProperties,
                                        PermissionProperties permissionProperties,
                                        PermissionMapper permissionMapper) {
-        this.zuulRoutesProperties = zuulRoutesProperties;
+        this.helperZuulRoutesProperties = helperZuulRoutesProperties;
         this.permissionProperties = permissionProperties;
         this.permissionMapper = permissionMapper;
     }
@@ -65,7 +69,7 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
         //如果是文件上传的url，以/zuul/开否，则去除了/zuul再进行校验权限
         String requestURI = request.getRequestURI();
         if (requestURI.startsWith(ZUUL_SERVLET_PATH)) {
-            requestURI = requestURI.substring(4, requestURI.length());
+            requestURI = requestURI.substring(5, requestURI.length());
         }
         //skipPath直接返回true
         for (String skipPath : permissionProperties.getSkipPaths()) {
@@ -74,18 +78,23 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
             }
         }
         //如果获取不到该服务的路由信息，则不允许通过
-        ZuulProperties.ZuulRoute route = ZuulPathUtils.getRoute(requestURI, zuulRoutesProperties.getRoutes());
+        ZuulRoute route = ZuulPathUtils.getRoute(requestURI, helperZuulRoutesProperties.getRoutes());
         if (route == null) {
             LOGGER.info("error.permissionVerifier.permission, can't find request service route, "
-                    + "request uri {}, zuulRoutes {}", request.getRequestURI(), zuulRoutesProperties.getRoutes());
+                    + "request uri {}, zuulRoutes {}", request.getRequestURI(), helperZuulRoutesProperties.getRoutes());
             return false;
         }
         String requestTruePath = ZuulPathUtils.getRequestTruePath(requestURI, route.getPath());
         final RequestInfo requestInfo = new RequestInfo(requestURI, requestTruePath,
                 route.getServiceId(), request.getMethod());
         final CustomUserDetails details = DetailsHelper.getUserDetails();
+        //如果是超级管理员用户，则跳过权限校验
+        if (details != null && details.getAdmin() != null && details.getAdmin()) {
+            return true;
+        }
         //判断是不是public接口获取loginAccess接口
-        if (passPublicOrLoginAccessPermission(requestInfo, details)) {
+        if (passPublicOrLoginAccessPermissionByMap(requestInfo, details)
+                || passPublicOrLoginAccessPermissionBySql(requestInfo, details)) {
             return true;
         }
         if (details == null || details.getUserId() == null) {
@@ -103,62 +112,38 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
     private boolean passSourcePermission(final RequestInfo requestInfo, final long userId) {
         final List<PermissionDO> resourcePermissions = permissionMapper.selectByUserIdAndServiceName(userId, requestInfo.service);
         for (PermissionDO permissionDO : resourcePermissions) {
-            boolean match = matcher.match(permissionDO.getPath(), requestInfo.trueUri)
-                    && requestInfo.method.equalsIgnoreCase(permissionDO.getMethod());
-            if (match) {
-                if (permissionDO.getSourceType().equals(ResourceLevel.SITE.value())) {
-                    return true;
-                }
-                if (requestInfo.trueUri.startsWith(PROJECT_PATH)) {
-                    String uri = requestInfo.trueUri.substring(PROJECT_PATH.length(), requestInfo.trueUri.length());
-                    int place = uri.indexOf('/');
-                    if (place < 0) {
-                        try {
-                            if (Long.parseLong(uri) == permissionDO.getSourceId()) {
-                                return true;
-                            } else {
-                                continue;
-                            }
-                        } catch (NumberFormatException e) {
-                        }
-                    }else {
-                        String id = uri.split("/")[0];
-                        if (Long.parseLong(id) == permissionDO.getSourceId()) {
-                            return true;
-                        } else {
-                            continue;
-                        }
-                    }
-                }
-                if (requestInfo.trueUri.startsWith(ORGANIZATION_PATH)) {
-                    String uri = requestInfo.trueUri.substring(ORGANIZATION_PATH.length(), requestInfo.trueUri.length());
-                    int place = uri.indexOf('/');
-                    if (place < 0) {
-                        try {
-                            if (Long.parseLong(uri) == permissionDO.getSourceId()) {
-                                return true;
-                            } else {
-                                continue;
-                            }
-                        } catch (NumberFormatException e) {
-                        }
-                    } else {
-                       String id = uri.split("/")[0];
-                        if (Long.parseLong(id) == permissionDO.getSourceId()) {
-                            return true;
-                        } else {
-                            continue;
-                        }
-                    }
-                }
+            boolean pass = matcher.match(permissionDO.getPath(), requestInfo.trueUri)
+                    && requestInfo.method.equalsIgnoreCase(permissionDO.getMethod())
+                    && (permissionDO.getSourceType().equals(ResourceLevel.SITE.value())
+                    || passProjectOrOrgPermission(permissionDO, requestInfo));
+            if (pass) {
                 return true;
             }
         }
         return false;
     }
 
+    private boolean passProjectOrOrgPermission(final PermissionDO permissionDO, final RequestInfo requestInfo) {
+        Map<String, String> map = matcher.extractUriTemplateVariables(permissionDO.getPath(), requestInfo.trueUri);
+        if (map.size() < 1) {
+            return true;
+        }
+        if (permissionDO.getSourceType().equals(ResourceLevel.PROJECT.value()) && map.containsKey(PROJECT_PATH_ID)) {
+            String projectId = map.get(PROJECT_PATH_ID);
+            return isInteger(projectId) && Long.parseLong(projectId) == permissionDO.getSourceId();
+        } else if (permissionDO.getSourceType().equals(ResourceLevel.ORGANIZATION.value()) && map.containsKey(ORG_PATH_ID)) {
+            String organizationId = map.get(ORG_PATH_ID);
+            return isInteger(organizationId) && Long.parseLong(organizationId) == permissionDO.getSourceId();
+        }
+        return false;
+    }
 
-    private boolean passPublicOrLoginAccessPermission(final RequestInfo requestInfo, final CustomUserDetails details) {
+    private static boolean isInteger(String str) {
+        return !StringUtils.isEmpty(str) && NUM_PATTERN.matcher(str).matches();
+    }
+
+    private boolean passPublicOrLoginAccessPermissionByMap(final RequestInfo requestInfo,
+                                                           final CustomUserDetails details) {
         Long permissionTime = publicPermissionMap.get(requestInfo.key);
         if (permissionTime != null) {
             if (System.currentTimeMillis() - permissionTime < permissionCacheTime) {
@@ -174,8 +159,12 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
             } else {
                 loginPermissionMap.remove(requestInfo.key);
             }
-            return true;
         }
+        return false;
+    }
+
+    private boolean passPublicOrLoginAccessPermissionBySql(final RequestInfo requestInfo,
+                                                           final CustomUserDetails details) {
         final List<PermissionDO> publicOrLoginPermissions = permissionMapper.selectPublicOrLoginAccessPermissionsByServiceName(requestInfo.service);
         for (PermissionDO permissionDO : publicOrLoginPermissions) {
             boolean match = matcher.match(permissionDO.getPath(), requestInfo.trueUri)
@@ -190,6 +179,7 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
             }
         }
         return false;
+
     }
 
     private static class RequestInfo {
@@ -199,7 +189,7 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
         final String method;
         final String key;
 
-        public RequestInfo(String uri, String trueUri, String service, String method) {
+        private RequestInfo(String uri, String trueUri, String service, String method) {
             this.uri = uri;
             this.trueUri = trueUri;
             this.service = service;

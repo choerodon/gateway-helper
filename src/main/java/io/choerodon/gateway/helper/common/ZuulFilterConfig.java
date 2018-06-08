@@ -38,7 +38,7 @@ import java.util.Set;
  */
 @Configuration
 @ConditionalOnClass(ZuulServlet.class)
-@EnableConfigurationProperties({ZuulRoutesProperties.class, ZuulProperties.class})
+@EnableConfigurationProperties(ZuulProperties.class)
 public class ZuulFilterConfig {
 
     @Autowired
