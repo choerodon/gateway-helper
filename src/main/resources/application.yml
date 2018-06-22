@@ -94,6 +94,8 @@ hystrix:
           thread:
             timeoutInMilliseconds: 10000
 security:
+  basic: # 关闭basic http
+    enabled: false
   oauth2:
     resource:
       userInfoUri: http://oauth-server/oauth/api/user
