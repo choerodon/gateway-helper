@@ -100,13 +100,6 @@ security:
   ignored:
     - /oauth/**
     - /**/skip/**
-management:
-  port: 9181
-  security:
-    enabled: false
-endpoints:
-  env:
-    sensitive: false
 logging:
   level:
     com.netflix.discovery.DiscoveryClient: warn
