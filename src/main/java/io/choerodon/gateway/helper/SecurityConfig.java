@@ -5,12 +5,14 @@ import io.choerodon.gateway.helper.jwt.CustomPrincipalExtractor;
 import io.choerodon.gateway.helper.jwt.EurekaOAuth2RestTemplate;
 import io.choerodon.gateway.helper.permission.PermissionProperties;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.actuate.autoconfigure.ManagementServerProperties;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.UserInfoTokenServices;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.jwt.crypto.sign.MacSigner;
@@ -25,10 +27,10 @@ import org.springframework.security.oauth2.provider.token.AccessTokenConverter;
  * JWT获取和权限校验配置类
  *
  * @author flyleft
- * @date 2018/4/17
  */
 @Configuration
 @EnableResourceServer
+@Order(ManagementServerProperties.ACCESS_OVERRIDE_ORDER)
 @EnableConfigurationProperties(PermissionProperties.class)
 public class SecurityConfig extends ResourceServerConfigurerAdapter {
 
