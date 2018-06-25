@@ -16,3 +16,6 @@ management:
   port: 9181
   security:
     enabled: false
+endpoints:
+  env:
+    sensitive: false
