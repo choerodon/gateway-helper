@@ -9,7 +9,7 @@ spring:
         maxAttempts: 6
         multiplier: 1.1
         maxInterval: 10000
-      enabled: false
+      enabled: true
       uri: http://localhost:8010
       fail-fast: true
 management:

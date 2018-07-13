@@ -3,7 +3,7 @@
 <mapper namespace="io.choerodon.gateway.helper.permission.mapper.PermissionMapper">
     <cache
             eviction="LRU"
-            flushInterval="60000"
+            flushInterval="30000"
             size="1024"
             readOnly="true"
     />
