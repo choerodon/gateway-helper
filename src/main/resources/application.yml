@@ -26,7 +26,7 @@ spring:
         enabled: true
 choerodon:
   permission:
-    skip-paths: /manager/docs/**
+    skip-paths: /manager/docs/**,/prometheus,/health,/env,/metrics
     enabled: true
     check:
       service: false
@@ -95,6 +95,8 @@ hystrix:
             timeoutInMilliseconds: 10000
 security:
   oauth2:
+    client:
+      grant-type: client_credentials
     resource:
       userInfoUri: http://oauth-server/oauth/api/user
   ignored:
