@@ -1,11 +1,11 @@
 package io.choerodon.gateway.helper.permission;
 
-import io.choerodon.core.iam.ResourceLevel;
-import io.choerodon.core.oauth.CustomUserDetails;
-import io.choerodon.core.oauth.DetailsHelper;
-import io.choerodon.gateway.helper.common.utils.ZuulPathUtils;
-import io.choerodon.gateway.helper.permission.domain.PermissionDO;
-import io.choerodon.gateway.helper.permission.mapper.PermissionMapper;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,11 +15,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
+import io.choerodon.core.iam.ResourceLevel;
+import io.choerodon.core.oauth.CustomUserDetails;
+import io.choerodon.core.oauth.DetailsHelper;
+import io.choerodon.gateway.helper.common.utils.ZuulPathUtils;
+import io.choerodon.gateway.helper.permission.domain.PermissionDO;
+import io.choerodon.gateway.helper.permission.mapper.PermissionMapper;
 
 /**
  * @author flyleft
@@ -88,9 +89,13 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
         final RequestInfo requestInfo = new RequestInfo(requestURI, requestTruePath,
                 route.getServiceId(), request.getMethod());
         final CustomUserDetails details = DetailsHelper.getUserDetails();
-        //如果是超级管理员用户，则跳过权限校验
+
+        //如果是超级管理员用户，且接口非内部接口，则跳过权限校验
         if (details != null && details.getAdmin() != null && details.getAdmin()) {
-            return true;
+            if (passWithinPermissionBySql(requestInfo)) {
+                return true;
+            }
+            return false;
         }
         //判断是不是public接口获取loginAccess接口
         if (passPublicOrLoginAccessPermissionByMap(requestInfo, details)
@@ -179,7 +184,18 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
             }
         }
         return false;
+    }
 
+    private boolean passWithinPermissionBySql(final RequestInfo requestInfo) {
+        final List<PermissionDO> publicOrLoginPermissions = permissionMapper.selectWithinPermissionsByServiceName(requestInfo.service);
+        for (PermissionDO permissionDO : publicOrLoginPermissions) {
+            boolean match = matcher.match(permissionDO.getPath(), requestInfo.trueUri)
+                    && requestInfo.method.equalsIgnoreCase(permissionDO.getMethod());
+            if (match) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static class RequestInfo {
