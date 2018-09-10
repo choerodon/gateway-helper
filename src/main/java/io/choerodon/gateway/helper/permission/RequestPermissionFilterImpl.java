@@ -92,10 +92,7 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
 
         //如果是超级管理员用户，且接口非内部接口，则跳过权限校验
         if (details != null && details.getAdmin() != null && details.getAdmin()) {
-            if (passWithinPermissionBySql(requestInfo)) {
-                return true;
-            }
-            return false;
+            return passWithinPermissionBySql(requestInfo);
         }
         //判断是不是public接口获取loginAccess接口
         if (passPublicOrLoginAccessPermissionByMap(requestInfo, details)
