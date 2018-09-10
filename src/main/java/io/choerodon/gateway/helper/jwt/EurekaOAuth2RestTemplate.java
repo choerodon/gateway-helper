@@ -15,10 +15,6 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class EurekaOAuth2RestTemplate extends OAuth2RestTemplate {
 
-    @Autowired
-    @Qualifier("oauth_rest")
-    private RestTemplate restTemplate;
-
     private static AuthorizationCodeResourceDetails defaultResourceDetails;
 
     static {
@@ -28,6 +24,10 @@ public class EurekaOAuth2RestTemplate extends OAuth2RestTemplate {
         details.setAccessTokenUri("Not a URI because there is no client");
         defaultResourceDetails = details;
     }
+
+    @Autowired
+    @Qualifier("oauth_rest")
+    private RestTemplate restTemplate;
 
     public EurekaOAuth2RestTemplate(OAuth2ProtectedResourceDetails resource) {
         super(defaultResourceDetails);
