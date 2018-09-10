@@ -1,12 +1,12 @@
 package io.choerodon.gateway.helper.common;
 
+import javax.servlet.Filter;
+
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.ShallowEtagHeaderFilter;
-
-import javax.servlet.Filter;
 
 /**
  * @author flyleft

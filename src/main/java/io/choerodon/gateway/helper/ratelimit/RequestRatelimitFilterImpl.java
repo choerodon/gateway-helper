@@ -1,8 +1,8 @@
 package io.choerodon.gateway.helper.ratelimit;
 
-import org.springframework.stereotype.Service;
-
 import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.stereotype.Service;
 
 /**
  * @author flyleft

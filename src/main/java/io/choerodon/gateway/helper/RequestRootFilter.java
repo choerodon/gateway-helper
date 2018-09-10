@@ -1,8 +1,9 @@
 package io.choerodon.gateway.helper;
 
-import io.choerodon.gateway.helper.common.utils.RequestRibbonForwardUtils;
-import io.choerodon.gateway.helper.permission.RequestPermissionFilter;
-import io.choerodon.gateway.helper.ratelimit.RequestRatelimitFilter;
+import java.util.Collections;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,9 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.Collections;
-import java.util.List;
+import io.choerodon.gateway.helper.common.utils.RequestRibbonForwardUtils;
+import io.choerodon.gateway.helper.permission.RequestPermissionFilter;
+import io.choerodon.gateway.helper.ratelimit.RequestRatelimitFilter;
 
 /**
  * 权限校验器

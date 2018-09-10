@@ -1,5 +1,13 @@
 package io.choerodon.gateway.helper.permission;
 
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.REQUEST_URI_KEY;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.net.URLDecoder;
+import java.util.*;
+import javax.servlet.http.HttpServletRequest;
+
 import com.netflix.hystrix.exception.HystrixRuntimeException;
 import com.netflix.zuul.context.RequestContext;
 import com.netflix.zuul.exception.ZuulException;
@@ -17,19 +25,14 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.WebUtils;
 
-import javax.servlet.http.HttpServletRequest;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.net.URLDecoder;
-import java.util.*;
-
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.REQUEST_URI_KEY;
-
 /**
  * @author flyleft
  * @date 2018/4/26
  */
 public class RequestBuildUtils {
+
+    private RequestBuildUtils() {
+    }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestBuildUtils.class);
 

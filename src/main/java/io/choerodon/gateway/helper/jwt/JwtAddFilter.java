@@ -1,13 +1,15 @@
 package io.choerodon.gateway.helper.jwt;
 
+import static io.choerodon.core.variable.RequestVariableHolder.HEADER_TOKEN;
+import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
+
+import java.util.Collections;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.hystrix.strategy.concurrency.HystrixRequestContext;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.context.RequestContext;
-import io.choerodon.core.oauth.CustomUserDetails;
-import io.choerodon.core.oauth.DetailsHelper;
-import io.choerodon.gateway.helper.common.utils.FilterConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -15,10 +17,8 @@ import org.springframework.security.jwt.JwtHelper;
 import org.springframework.security.jwt.crypto.sign.Signer;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-
-import static io.choerodon.core.variable.RequestVariableHolder.HEADER_TOKEN;
-import static org.springframework.cloud.netflix.zuul.filters.support.FilterConstants.PRE_TYPE;
+import io.choerodon.core.oauth.CustomUserDetails;
+import io.choerodon.core.oauth.DetailsHelper;
 
 /**
  * 定义filter的config
@@ -32,6 +32,10 @@ public class JwtAddFilter extends ZuulFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(JwtAddFilter.class);
 
     private static final String DEFAULT_PASS = "unknown";
+
+    private static final String ACCESS_TOKEN = "ACCESS_TOKEN";
+
+    private static final int ACCESS_TOKEN_VERIFY_FILTER = 0;
 
     private Signer jwtSigner;
 
@@ -71,9 +75,9 @@ public class JwtAddFilter extends ZuulFilter {
                 ctx.setResponseStatusCode(HttpStatus.OK.value());
                 ctx.setResponseBody("");
                 ctx.getResponse().setContentType("text/plain");
-                ctx.set(FilterConstants.ACCESS_TOKEN, jwt);
+                ctx.set(ACCESS_TOKEN, jwt);
             } catch (JsonProcessingException e) {
-                LOGGER.warn("error happened when add JWT : {}", e.toString());
+                LOGGER.warn("error happened when add JWT : {}", e);
             }
         }
         return null;
@@ -81,7 +85,7 @@ public class JwtAddFilter extends ZuulFilter {
 
     @Override
     public int filterOrder() {
-        return FilterConstants.ACCESS_TOKEN_VERIFY_FILTER;
+        return ACCESS_TOKEN_VERIFY_FILTER;
     }
 
     @Override

@@ -1,15 +1,16 @@
 package io.choerodon.gateway.helper.jwt;
 
+import java.util.Collections;
+import java.util.Map;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.choerodon.core.oauth.CustomClientDetails;
-import io.choerodon.core.oauth.CustomUserDetails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.PrincipalExtractor;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.Map;
+import io.choerodon.core.oauth.CustomClientDetails;
+import io.choerodon.core.oauth.CustomUserDetails;
 
 /**
  * Created by xausky on 5/3/17.

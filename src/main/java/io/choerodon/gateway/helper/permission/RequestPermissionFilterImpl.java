@@ -32,21 +32,17 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestPermissionFilter.class);
 
     private static final String ZUUL_SERVLET_PATH = "/zuul/";
-
+    private static final Pattern NUM_PATTERN = Pattern.compile("^[-\\+]?[\\d]*$");
+    private static final String PROJECT_PATH_ID = "project_id";
+    private static final String ORG_PATH_ID = "organization_id";
+    private final Map<String, Long> publicPermissionMap = new HashMap<>();
+    private final Map<String, Long> loginPermissionMap = new HashMap<>();
+    private final AntPathMatcher matcher = new AntPathMatcher();
     @Value("${choerodon.permission.cacheTime:1800000}")
     private Long permissionCacheTime;
-
     private HelperZuulRoutesProperties helperZuulRoutesProperties;
-
     private PermissionProperties permissionProperties;
-
     private PermissionMapper permissionMapper;
-
-    private static final Pattern NUM_PATTERN = Pattern.compile("^[-\\+]?[\\d]*$");
-
-    private static final String PROJECT_PATH_ID = "project_id";
-
-    private static final String ORG_PATH_ID = "organization_id";
 
     public RequestPermissionFilterImpl(HelperZuulRoutesProperties helperZuulRoutesProperties,
                                        PermissionProperties permissionProperties,
@@ -56,11 +52,9 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
         this.permissionMapper = permissionMapper;
     }
 
-    private final Map<String, Long> publicPermissionMap = new HashMap<>();
-
-    private final Map<String, Long> loginPermissionMap = new HashMap<>();
-
-    private final AntPathMatcher matcher = new AntPathMatcher();
+    private static boolean isInteger(String str) {
+        return !StringUtils.isEmpty(str) && NUM_PATTERN.matcher(str).matches();
+    }
 
     @Override
     public boolean permission(final HttpServletRequest request) {
@@ -138,10 +132,6 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
             return isInteger(organizationId) && Long.parseLong(organizationId) == permissionDO.getSourceId();
         }
         return false;
-    }
-
-    private static boolean isInteger(String str) {
-        return !StringUtils.isEmpty(str) && NUM_PATTERN.matcher(str).matches();
     }
 
     private boolean passPublicOrLoginAccessPermissionByMap(final RequestInfo requestInfo,

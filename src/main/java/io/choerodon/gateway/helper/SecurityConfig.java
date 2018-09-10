@@ -1,9 +1,5 @@
 package io.choerodon.gateway.helper;
 
-import io.choerodon.core.oauth.CustomTokenConverter;
-import io.choerodon.gateway.helper.jwt.CustomPrincipalExtractor;
-import io.choerodon.gateway.helper.jwt.EurekaOAuth2RestTemplate;
-import io.choerodon.gateway.helper.permission.PermissionProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.ManagementServerProperties;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.UserInfoTokenServices;
@@ -22,6 +18,11 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.R
 import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
 import org.springframework.security.oauth2.provider.expression.OAuth2WebSecurityExpressionHandler;
 import org.springframework.security.oauth2.provider.token.AccessTokenConverter;
+
+import io.choerodon.core.oauth.CustomTokenConverter;
+import io.choerodon.gateway.helper.jwt.CustomPrincipalExtractor;
+import io.choerodon.gateway.helper.jwt.EurekaOAuth2RestTemplate;
+import io.choerodon.gateway.helper.permission.PermissionProperties;
 
 /**
  * JWT获取和权限校验配置类

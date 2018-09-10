@@ -1,5 +1,9 @@
 package io.choerodon.gateway.helper.common;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+
 import com.netflix.zuul.FilterLoader;
 import com.netflix.zuul.ZuulFilter;
 import com.netflix.zuul.filters.FilterRegistry;
@@ -17,6 +21,7 @@ import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.cloud.netflix.ribbon.SpringClientFactory;
 import org.springframework.cloud.netflix.zuul.ZuulFilterInitializer;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommand;
 import org.springframework.cloud.netflix.zuul.filters.route.RibbonCommandFactory;
 import org.springframework.cloud.netflix.zuul.filters.route.ZuulFallbackProvider;
 import org.springframework.cloud.netflix.zuul.filters.route.apache.HttpClientRibbonCommandFactory;
@@ -25,10 +30,6 @@ import org.springframework.cloud.netflix.zuul.metrics.EmptyCounterFactory;
 import org.springframework.cloud.netflix.zuul.metrics.EmptyTracerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * 定义filter的config
@@ -43,6 +44,8 @@ public class ZuulFilterConfig {
 
     @Autowired
     protected ServerProperties server;
+    @Autowired(required = false)
+    private Set<ZuulFallbackProvider> zuulFallbackProviders = Collections.emptySet();
 
     /**
      * 注册ZuulServlet
@@ -54,6 +57,13 @@ public class ZuulFilterConfig {
         ServletRegistrationBean servlet = new ServletRegistrationBean(new ZuulServlet(), "/*");
         servlet.addInitParameter("buffer-requests", "false");
         return servlet;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public RibbonCommandFactory<RibbonCommand> ribbonCommandFactory(
+            SpringClientFactory clientFactory, ZuulProperties zuulProperties) {
+        return new HttpClientRibbonCommandFactory(clientFactory, zuulProperties, zuulFallbackProviders);
     }
 
     @Configuration
@@ -94,16 +104,6 @@ public class ZuulFilterConfig {
             return new EmptyTracerFactory();
         }
 
-    }
-
-    @Autowired(required = false)
-    private Set<ZuulFallbackProvider> zuulFallbackProviders = Collections.emptySet();
-
-    @Bean
-    @ConditionalOnMissingBean
-    public RibbonCommandFactory<?> ribbonCommandFactory(
-            SpringClientFactory clientFactory, ZuulProperties zuulProperties) {
-        return new HttpClientRibbonCommandFactory(clientFactory, zuulProperties, zuulFallbackProviders);
     }
 
 }

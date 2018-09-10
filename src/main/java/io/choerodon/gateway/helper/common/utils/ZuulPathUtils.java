@@ -1,10 +1,10 @@
 package io.choerodon.gateway.helper.common.utils;
 
-import org.springframework.cloud.config.client.ZuulRoute;
-import org.springframework.util.AntPathMatcher;
-
 import java.util.Map;
 import java.util.Optional;
+
+import org.springframework.cloud.config.client.ZuulRoute;
+import org.springframework.util.AntPathMatcher;
 
 /**
  * zuul有关的工具包
@@ -13,10 +13,10 @@ import java.util.Optional;
  */
 public class ZuulPathUtils {
 
+    private static final AntPathMatcher MATCHER = new AntPathMatcher();
+
     private ZuulPathUtils() {
     }
-
-    private static final AntPathMatcher MATCHER = new AntPathMatcher();
 
     /**
      * 获取服务前缀，形如uaa
