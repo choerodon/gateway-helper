@@ -211,4 +211,8 @@ public class RequestPermissionFilterImpl implements RequestPermissionFilter {
                     + '}';
         }
     }
+
+    public void setPermissionCacheTime(Long permissionCacheTime) {
+        this.permissionCacheTime = permissionCacheTime;
+    }
 }
