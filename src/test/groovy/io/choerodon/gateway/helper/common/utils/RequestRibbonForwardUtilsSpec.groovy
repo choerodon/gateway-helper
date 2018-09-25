@@ -100,28 +100,28 @@ class RequestRibbonForwardUtilsSpec extends Specification {
         thrown(IllegalStateException)
     }
 
-    def "GetHelperServiceByUri"() {
+//    def "GetHelperServiceByUri"() {
 
-        given: "mock"
-        def helperZuulRoutesProperties = Mock(HelperZuulRoutesProperties)
-        def zuulRoute = Mock(ZuulRoute)
-        def map = Mock(Map)
-        helperZuulRoutesProperties.getRoutes() >> map
-        map.get(_) >> zuulRoute
-        zuulRoute.setHelperService('aaa')
-
-        when: "调用"
-        def value = RequestRibbonForwardUtils.getHelperServiceByUri(helperZuulRoutesProperties, uri)
-
-
-        then: "预期与结果"
-        value == result
-
-        where: "条件"
-        uri       || result
-        ""        || null
-        "aaa/bbb" || null
+//        given: "mock"
+//        def helperZuulRoutesProperties = Mock(HelperZuulRoutesProperties)
+//        def zuulRoute = Mock(ZuulRoute)
+//        def map = Mock(Map)
+//        helperZuulRoutesProperties.getRoutes() >> map
+//        map.get(_) >> zuulRoute
+//        zuulRoute.setHelperService('aaa')
+//
+//        when: "调用"
+//        def value = RequestRibbonForwardUtils.getHelperServiceByUri(helperZuulRoutesProperties, uri)
+//
+//
+//        then: "预期与结果"
+//        value == result
+//
+//        where: "条件"
+//        uri       || result
+//        ""        || null
+//        "aaa/bbb" || null
 //        "aaa/bbb" || "aaa"
 
-    }
+//    }
 }
