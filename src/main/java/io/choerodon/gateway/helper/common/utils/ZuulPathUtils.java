@@ -18,19 +18,19 @@ public class ZuulPathUtils {
     private ZuulPathUtils() {
     }
 
-    /**
-     * 获取服务前缀，形如uaa
-     *
-     * @param uri 形如/uaa/v1/testPermission
-     * @return 服务前缀，形如uaa
-     */
-    public static Optional<String> getServicePrefixByUri(String uri) {
-        String[] uris = uri.split("/");
-        if (uri.length() > 1) {
-            return Optional.of(uris[1]);
-        }
-        return Optional.empty();
-    }
+//    /**
+//     * 获取服务前缀，形如uaa
+//     *
+//     * @param uri 形如/uaa/v1/testPermission
+//     * @return 服务前缀，形如uaa
+//     */
+//    public static Optional<String> getServicePrefixByUri(String uri) {
+//        String[] uris = uri.split("/");
+//        if (uri.length() > 1) {
+//            return Optional.of(uris[1]);
+//        }
+//        return Optional.empty();
+//    }
 
     public static ZuulRoute getRoute(final String requestUri,
                                      final Map<String, ZuulRoute> routeMap) {

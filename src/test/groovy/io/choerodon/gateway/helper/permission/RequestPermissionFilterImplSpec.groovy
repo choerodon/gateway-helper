@@ -12,6 +12,7 @@ import org.powermock.api.mockito.PowerMockito
 import org.powermock.core.classloader.annotations.PrepareForTest
 import org.powermock.modules.junit4.PowerMockRunner
 import org.powermock.modules.junit4.PowerMockRunnerDelegate
+import org.powermock.reflect.Whitebox
 import org.spockframework.runtime.Sputnik
 import org.springframework.cloud.config.client.ZuulRoute
 import org.springframework.cloud.config.helper.HelperZuulRoutesProperties
@@ -143,7 +144,7 @@ class RequestPermissionFilterImplSpec extends Specification {
     }
 
     def "Permission1"() {
-        given:""
+        given: ""
         def permission = new PermissionDO()
         permission.setPath("aaa")
         permission.setMethod("get")
@@ -194,6 +195,43 @@ class RequestPermissionFilterImplSpec extends Specification {
         1 * permissionMapper.selectPublicOrLoginAccessPermissionsByServiceName(_) >> new ArrayList<>()
         1 * permissionMapper.selectByUserIdAndServiceName(_, _) >> new ArrayList<>()
         value10 == false
+
+    }
+
+    def "passProjectOrOrgPermission"() {
+        given: "准备数据"
+        def requestPermissionFilterImpl = new RequestPermissionFilterImpl(null, null, null)
+
+        def permission = Mock(PermissionDO)
+        def requestInfo = Whitebox.invokeConstructor(RequestPermissionFilterImpl.RequestInfo.class, "iam/v1/projects/1", "/v1/projects/1", "iam-service", "get")
+
+        when: "调用私有方法"
+        def value =
+                Whitebox.invokeMethod(requestPermissionFilterImpl, "passProjectOrOrgPermission", permission, requestInfo)
+        then: ""
+        _ * permission.getPath() >> path
+        _ * permission.getSourceType() >> type
+        _ * permission.getSourceId() >> 1L
+        value == result
+
+        and: ""
+        def requestInfo1 = Whitebox.invokeConstructor(RequestPermissionFilterImpl.RequestInfo.class, "iam/v1/users", "/v1/users", "iam-service", "get")
+        when: ""
+        def value1 =
+                Whitebox.invokeMethod(requestPermissionFilterImpl, "passProjectOrOrgPermission", permission, requestInfo1)
+
+        then: ""
+        1 * permission.getPath() >> "/v1/users"
+        value1 == true
+
+
+
+        where: ""
+        path                             | type           || result
+        "/v1/projects/{project_id}"      | "project"      || true
+        "/v1/projects/{organization_id}" | "organization" || true
+        "/v1/projects/{project_id}"      | "user"         || false
+
 
     }
 

@@ -31,13 +31,17 @@ class ClearContextZuulFilterSpec extends Specification {
     }
 
     def "ShouldFilter"() {
-        when:""
+        when: ""
         def value = clearContextZuulFilter.shouldFilter()
 
-        then:""
-        value==true
+        then: ""
+        value == true
     }
 
     def "Run"() {
+        when: ""
+        def value = clearContextZuulFilter.run()
+        then: ""
+        value == null
     }
 }
