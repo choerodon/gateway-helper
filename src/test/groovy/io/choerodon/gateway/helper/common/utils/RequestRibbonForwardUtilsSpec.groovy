@@ -46,9 +46,9 @@ class RequestRibbonForwardUtilsSpec extends Specification {
                 "gateway-helper", "/iam/v1/users/self?userId=1&name=kangkang")
 
         then: "预期与结果"
-        _ * request.getHeaderNames() >> headerNames
-        _ * request.getHeaders(_) >> headerNames
-        _ * request.getQueryString() >> queryString
+        1 * request.getHeaderNames() >> headerNames
+        1 * request.getHeaders(_) >> headerNames
+        1 * request.getQueryString() >> queryString
         ctx != result
 
         where: "条件"
