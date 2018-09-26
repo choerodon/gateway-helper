@@ -2,7 +2,6 @@ package io.choerodon.gateway.helper.common.utils
 
 import com.netflix.hystrix.exception.HystrixRuntimeException
 import com.netflix.zuul.context.RequestContext
-import com.netflix.zuul.exception.ZuulException
 import org.junit.runner.RunWith
 import org.powermock.api.mockito.PowerMockito
 import org.powermock.core.classloader.annotations.PrepareForTest
@@ -69,8 +68,8 @@ class RequestRibbonForwardUtilsSpec extends Specification {
         def value = RequestRibbonForwardUtils.buildZuulRequestUri(request)
 
         then: "预期与结果"
-        _ * ctx.get(_) >> "/iam/v1/users/self"
-        _ * request.getRequestURI() >> "/iam/v1/users/self"
+        1 * ctx.get(_) >> "/iam/v1/users/self"
+        1 * request.getRequestURI() >> "/iam/v1/users/self"
         "/iam/v1/users/self" == value
     }
 
@@ -100,28 +99,32 @@ class RequestRibbonForwardUtilsSpec extends Specification {
         thrown(IllegalStateException)
     }
 
-//    def "GetHelperServiceByUri"() {
+    def "GetHelperServiceByUri"() {
 
-//        given: "mock"
-//        def helperZuulRoutesProperties = Mock(HelperZuulRoutesProperties)
-//        def zuulRoute = Mock(ZuulRoute)
-//        def map = Mock(Map)
-//        helperZuulRoutesProperties.getRoutes() >> map
-//        map.get(_) >> zuulRoute
-//        zuulRoute.setHelperService('aaa')
-//
-//        when: "调用"
-//        def value = RequestRibbonForwardUtils.getHelperServiceByUri(helperZuulRoutesProperties, uri)
-//
-//
-//        then: "预期与结果"
-//        value == result
-//
-//        where: "条件"
-//        uri       || result
-//        ""        || null
-//        "aaa/bbb" || null
-//        "aaa/bbb" || "aaa"
+        given: "mock"
+        def helperZuulRoutesProperties = new HelperZuulRoutesProperties()
 
-//    }
+        when: "调用"
+        def value = RequestRibbonForwardUtils.getHelperServiceByUri(helperZuulRoutesProperties, "")
+
+        then: "预期与结果"
+        value == null
+
+        when: ""
+        def map = new LinkedHashMap<String, ZuulRoute>()
+        helperZuulRoutesProperties.setRoutes(map)
+        def value1 = RequestRibbonForwardUtils.getHelperServiceByUri(helperZuulRoutesProperties, "aaa/bbb")
+        then: ""
+        value1 == null
+
+        and: ""
+        def route = Mock(ZuulRoute)
+        when: ""
+        map.put("bbb", route)
+        def value2 = RequestRibbonForwardUtils.getHelperServiceByUri(helperZuulRoutesProperties, "aaa/bbb")
+
+        then: ""
+        1 * route.getHelperService() >> "a"
+        value2 == "a"
+    }
 }
