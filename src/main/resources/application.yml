@@ -26,7 +26,7 @@ spring:
         enabled: true
 choerodon:
   permission:
-    skip-paths: /manager/docs/**,/prometheus,/health,/env,/metrics
+    skip-paths: /manager/docs/**,/prometheus,/health,/env,/metrics,/notify/**
     enabled: true
     check:
       service: false
