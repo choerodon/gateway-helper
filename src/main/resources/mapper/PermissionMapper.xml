@@ -1,55 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="io.choerodon.gateway.helper.permission.mapper.PermissionMapper">
-    <cache
-            eviction="LRU"
-            flushInterval="30000"
-            size="1024"
-            readOnly="true"
-    />
+<mapper namespace="io.choerodon.gateway.helper.infra.mapper.PermissionMapper">
 
-    <select id="selectByUserIdAndServiceName"
-            resultType="io.choerodon.gateway.helper.permission.domain.PermissionDO">
+    <select id="selectPermissionByMethodAndService"
+            resultType="io.choerodon.gateway.helper.domain.PermissionDO">
         SELECT
-        iam_member_role.source_id,
-        iam_member_role.source_type,
-        iam_permission.id,
-        iam_permission.code,
-        iam_permission.path,
-        iam_permission.method
-        FROM
-        iam_member_role
-        INNER JOIN iam_role_permission ON iam_member_role.role_id = iam_role_permission.role_id
-        INNER JOIN iam_role ON iam_role.id = iam_member_role.role_id AND iam_role.is_enabled = 1
-        INNER JOIN iam_permission ON iam_role_permission.permission_id = iam_permission.id AND iam_permission.fd_level = iam_member_role.source_type
-        WHERE
-        iam_member_role.member_type = 'user' AND iam_permission.public_access = 0 AND iam_permission.login_access = 0 AND iam_permission.within=0 AND iam_member_role.member_id = #{userId} AND iam_permission.service_name = #{serviceName}
-    </select>
-
-    <select id="selectPublicOrLoginAccessPermissionsByServiceName"
-            resultType="io.choerodon.gateway.helper.permission.domain.PermissionDO">
-        SELECT
-        iam_permission.id,
-        iam_permission.code,
-        iam_permission.path,
-        iam_permission.method,
-        iam_permission.public_access,
-        iam_permission.login_access
+        id,path,method,public_access,login_access,within,fd_level
         FROM
         iam_permission
         WHERE
-        iam_permission.service_name = #{serviceName} AND (iam_permission.public_access = 1 OR iam_permission.login_access = 1) AND iam_permission.within=0
+        service_name = #{service} AND method = #{method}
     </select>
 
-    <select id="selectWithinPermissionsByServiceName"
-            resultType="io.choerodon.gateway.helper.permission.domain.PermissionDO">
-        SELECT
-        iam_permission.path,
-        iam_permission.method
-        FROM
-        iam_permission
-        WHERE
-        iam_permission.service_name = #{serviceName} AND iam_permission.within = 1
+    <select id="selectSourceIdsByUserIdAndPermission" resultType="java.lang.Long">
+        SELECT imr.source_id
+        FROM iam_member_role imr
+        INNER JOIN iam_role ir ON imr.role_id = ir.id
+        INNER JOIN iam_role_permission irp ON irp.role_id = ir.id
+        WHERE imr.source_type = #{sourceType} AND imr.member_type = 'user' AND imr.member_id = #{userId} AND irp.permission_id = #{permissionId}
     </select>
 
 </mapper>
