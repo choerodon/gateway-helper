@@ -4,6 +4,9 @@ import io.choerodon.gateway.helper.domain.RequestContext;
 import io.choerodon.gateway.helper.domain.CheckState;
 import org.springframework.stereotype.Component;
 
+/**
+ * 超级管理员的权限校验
+ */
 @Component
 public class AdminUserPermissionFilter implements HelperFilter {
 
