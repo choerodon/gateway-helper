@@ -68,10 +68,13 @@ public class RootServletFilter implements Filter {
         res.setCharacterEncoding("utf-8");
         if (checkResponse.getStatus().getValue() < 300) {
             res.setStatus(200);
+            LOGGER.debug("Request 200, context: {}", requestContext);
         } else if (checkResponse.getStatus().getValue() < 500) {
             res.setStatus(403);
+            LOGGER.info("Request 403, context: {}", requestContext);
         } else {
             res.setStatus(500);
+            LOGGER.info("Request 500, context: {}", requestContext);
         }
         if (checkResponse.getJwt() != null) {
             res.setHeader(HEADER_JWT, checkResponse.getJwt());
@@ -81,7 +84,6 @@ public class RootServletFilter implements Filter {
         }
         res.setHeader("request-status", checkResponse.getStatus().name());
         res.setHeader("request-code", checkResponse.getStatus().getCode());
-
         try (PrintWriter out = res.getWriter()) {
             out.flush();
         }
