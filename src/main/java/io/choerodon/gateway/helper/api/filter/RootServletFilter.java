@@ -4,7 +4,7 @@ import io.choerodon.gateway.helper.domain.CheckRequest;
 import io.choerodon.gateway.helper.domain.CheckResponse;
 import io.choerodon.gateway.helper.domain.CheckState;
 import io.choerodon.gateway.helper.domain.RequestContext;
-import io.choerodon.gateway.helper.infra.exception.PermissionMutiplyMatchException;
+import io.choerodon.gateway.helper.infra.exception.PermissionMultiplyMatchException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -55,7 +55,7 @@ public class RootServletFilter implements Filter {
                     break;
                 }
             }
-        } catch (PermissionMutiplyMatchException e) {
+        } catch (PermissionMultiplyMatchException e) {
             checkResponse.setStatus(CheckState.API_ERROR_MATCH_MULTIPLY);
             checkResponse.setMessage("This request match multiply permission, permissions: " + e.getPermissionDOS());
         } catch (Exception e) {
