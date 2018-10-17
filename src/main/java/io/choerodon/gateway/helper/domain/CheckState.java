@@ -91,7 +91,7 @@ public enum CheckState {
     /**
      * 通过access_token从oauthServer获取userDetails失败
      */
-    PERMISSION_GET_USE_DETAIL_FAILED(410, "error.permission.getJwtFromOauthServer"),
+    PERMISSION_GET_USE_DETAIL_FAILED(410, "error.permission.getUserDetailsFromOauthServer"),
 
     /**
      * 访问过于频繁
