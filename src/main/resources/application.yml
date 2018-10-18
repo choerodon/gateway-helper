@@ -12,6 +12,21 @@ spring:
         percentage: 1.0
       stream:
         enabled: true
+  cache:
+    multi:
+      l1:
+        enabled: true
+        type: caffeine
+      l2:
+        enabled: true
+        type: redis
+      caches:
+        permission:
+          l1-spec: initialCapacity=50,maximumSize=1000,expireAfterWrite=600s
+          l2-spec: maximumSize=5000,expireAfterWrite=600s
+        userDetail:
+          l1-spec: initialCapacity=50,maximumSize=200,expireAfterWrite=3600s
+          l2-spec: maximumSize=5000,expireAfterWrite=3600s
   cloud:
       stream:
         kafka:
