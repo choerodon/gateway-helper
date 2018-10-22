@@ -83,25 +83,19 @@ public class MultiCacheProperties {
 
 
     public static class Cache {
-        private Boolean l1Enabled = true;
+        private boolean l1Enabled = true;
         private String l1Spec = "";
-        private Boolean l2Enabled = true;
+        private boolean l1AllowNullValues = true;
+        private boolean l2Enabled = true;
         private String l2Spec = "";
+        private boolean l2AllowNullValues = false;
 
-        public Boolean getL1Enabled() {
+        public boolean isL1Enabled() {
             return l1Enabled;
         }
 
-        public void setL1Enabled(Boolean l1Enabled) {
+        public void setL1Enabled(boolean l1Enabled) {
             this.l1Enabled = l1Enabled;
-        }
-
-        public Boolean getL2Enabled() {
-            return l2Enabled;
-        }
-
-        public void setL2Enabled(Boolean l2Enabled) {
-            this.l2Enabled = l2Enabled;
         }
 
         public String getL1Spec() {
@@ -112,12 +106,36 @@ public class MultiCacheProperties {
             this.l1Spec = l1Spec;
         }
 
+        public boolean isL2Enabled() {
+            return l2Enabled;
+        }
+
+        public void setL2Enabled(boolean l2Enabled) {
+            this.l2Enabled = l2Enabled;
+        }
+
+        public boolean isL1AllowNullValues() {
+            return l1AllowNullValues;
+        }
+
+        public void setL1AllowNullValues(boolean l1AllowNullValues) {
+            this.l1AllowNullValues = l1AllowNullValues;
+        }
+
         public String getL2Spec() {
             return l2Spec;
         }
 
         public void setL2Spec(String l2Spec) {
             this.l2Spec = l2Spec;
+        }
+
+        public boolean isL2AllowNullValues() {
+            return l2AllowNullValues;
+        }
+
+        public void setL2AllowNullValues(boolean l2AllowNullValues) {
+            this.l2AllowNullValues = l2AllowNullValues;
         }
     }
 }

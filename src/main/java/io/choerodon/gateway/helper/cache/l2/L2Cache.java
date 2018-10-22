@@ -1,11 +1,17 @@
 package io.choerodon.gateway.helper.cache.l2;
 
-import io.choerodon.gateway.helper.cache.bridge.L2ToSourceBridge;
+import org.springframework.cache.Cache;
 
-public interface L2Cache {
+public abstract class L2Cache {
 
-    String type();
+    private final Cache cache;
 
-    L2ToSourceBridge bridge();
+    public L2Cache(Cache cache) {
+        this.cache = cache;
+    }
+
+    public Cache getCache() {
+        return cache;
+    }
 
 }

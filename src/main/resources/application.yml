@@ -23,10 +23,10 @@ spring:
       caches:
         permission:
           l1-spec: initialCapacity=50,maximumSize=1000,expireAfterWrite=600s
-          l2-spec: maximumSize=5000,expireAfterWrite=600s
+          l2-spec: expiration=600
         userDetail:
           l1-spec: initialCapacity=50,maximumSize=200,expireAfterWrite=3600s
-          l2-spec: maximumSize=5000,expireAfterWrite=3600s
+          l2-spec: expiration=3600
   cloud:
       stream:
         kafka:
