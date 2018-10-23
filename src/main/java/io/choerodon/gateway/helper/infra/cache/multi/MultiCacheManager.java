@@ -2,7 +2,7 @@ package io.choerodon.gateway.helper.infra.cache.multi;
 
 import io.choerodon.gateway.helper.infra.cache.l1.L1CacheManager;
 import io.choerodon.gateway.helper.infra.cache.l2.L2CacheManager;
-import io.choerodon.gateway.helper.infra.cache.setting.MultiCacheProperties;
+import io.choerodon.gateway.helper.infra.cache.MultiCacheProperties;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.support.NoOpCache;

@@ -1,4 +1,4 @@
-package io.choerodon.gateway.helper.infra.cache.setting;
+package io.choerodon.gateway.helper.infra.cache;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

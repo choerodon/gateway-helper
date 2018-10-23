@@ -65,11 +65,13 @@ public class MultiAllCache extends MultiCache {
     @Override
     public void put(Object key, Object value) {
         l1Cache.put(key, value);
+        l2Cache.put(key, value);
     }
 
     @Override
     public ValueWrapper putIfAbsent(Object key, Object value) {
-        return l1Cache.putIfAbsent(key, value);
+        l1Cache.putIfAbsent(key, value);
+        return l2Cache.putIfAbsent(key, value);
     }
 
     @Override

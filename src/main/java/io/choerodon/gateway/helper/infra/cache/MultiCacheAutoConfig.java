@@ -6,7 +6,6 @@ import io.choerodon.gateway.helper.infra.cache.l1.guava.GuavaL1CacheManager;
 import io.choerodon.gateway.helper.infra.cache.l2.L2CacheManager;
 import io.choerodon.gateway.helper.infra.cache.l2.redis.RedisL2CacheManager;
 import io.choerodon.gateway.helper.infra.cache.multi.MultiCacheManager;
-import io.choerodon.gateway.helper.infra.cache.setting.MultiCacheProperties;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.cache.CacheManagerCustomizer;
 import org.springframework.boot.autoconfigure.cache.CacheManagerCustomizers;
@@ -54,8 +53,8 @@ public class MultiCacheAutoConfig {
 
     @Bean
     @Primary
-    @ConditionalOnExpression("#{'${spring.cache.multi.l1.enabled}'=='true' || " +
-            "'${spring.cache.multi.l1.enabled}'=='true'}")
+//    @ConditionalOnExpression("#{'${spring.cache.multi.l1.enabled}'=='true' || " +
+//            "'${spring.cache.multi.l1.enabled}'=='true'}")
     public MultiCacheManager multiCacheManager(Optional<L2CacheManager> l2CacheManagerOptional,
                                                MultiCacheProperties multiCacheProperties) {
         L1CacheManager l1CacheManager = null;
