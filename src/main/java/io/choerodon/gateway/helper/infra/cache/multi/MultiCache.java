@@ -1,4 +1,4 @@
-package io.choerodon.gateway.helper.cache.multi;
+package io.choerodon.gateway.helper.infra.cache.multi;
 
 import org.springframework.cache.Cache;
 import org.springframework.cache.support.NullValue;

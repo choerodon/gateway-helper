@@ -18,7 +18,7 @@ spring:
         enabled: true
         type: caffeine
       l2:
-        enabled: true
+        enabled: false
         type: redis
       caches:
         permission:

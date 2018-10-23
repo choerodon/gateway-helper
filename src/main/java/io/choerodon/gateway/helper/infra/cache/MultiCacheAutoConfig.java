@@ -1,13 +1,14 @@
-package io.choerodon.gateway.helper.cache;
+package io.choerodon.gateway.helper.infra.cache;
 
-import io.choerodon.gateway.helper.cache.l1.L1CacheManager;
-import io.choerodon.gateway.helper.cache.l1.caffeine.CaffeineL1CacheManager;
-import io.choerodon.gateway.helper.cache.l1.guava.GuavaL1CacheManager;
-import io.choerodon.gateway.helper.cache.l2.L2CacheManager;
-import io.choerodon.gateway.helper.cache.l2.redis.RedisL2CacheManager;
-import io.choerodon.gateway.helper.cache.multi.MultiCacheManager;
-import io.choerodon.gateway.helper.cache.setting.MultiCacheProperties;
+import io.choerodon.gateway.helper.infra.cache.l1.L1CacheManager;
+import io.choerodon.gateway.helper.infra.cache.l1.caffeine.CaffeineL1CacheManager;
+import io.choerodon.gateway.helper.infra.cache.l1.guava.GuavaL1CacheManager;
+import io.choerodon.gateway.helper.infra.cache.l2.L2CacheManager;
+import io.choerodon.gateway.helper.infra.cache.l2.redis.RedisL2CacheManager;
+import io.choerodon.gateway.helper.infra.cache.multi.MultiCacheManager;
+import io.choerodon.gateway.helper.infra.cache.setting.MultiCacheProperties;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.cache.CacheManagerCustomizer;
 import org.springframework.boot.autoconfigure.cache.CacheManagerCustomizers;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
@@ -16,6 +17,7 @@ import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisClusterConfiguration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisNode;
@@ -42,6 +44,35 @@ import java.util.Optional;
 @Configuration
 @EnableConfigurationProperties({MultiCacheProperties.class, RedisProperties.class})
 public class MultiCacheAutoConfig {
+
+    @Bean
+    @ConditionalOnMissingBean
+    public CacheManagerCustomizers cacheManagerCustomizers(
+            ObjectProvider<List<CacheManagerCustomizer<?>>> customizers) {
+        return new CacheManagerCustomizers(customizers.getIfAvailable());
+    }
+
+    @Bean
+    @Primary
+    @ConditionalOnExpression("#{'${spring.cache.multi.l1.enabled}'=='true' || " +
+            "'${spring.cache.multi.l1.enabled}'=='true'}")
+    public MultiCacheManager multiCacheManager(Optional<L2CacheManager> l2CacheManagerOptional,
+                                               MultiCacheProperties multiCacheProperties) {
+        L1CacheManager l1CacheManager = null;
+        if (multiCacheProperties.getL1().isEnabled()) {
+            if (CaffeineL1CacheManager.type().equals(multiCacheProperties.getL1().getType())) {
+                l1CacheManager = new CaffeineL1CacheManager();
+            } else if (GuavaL1CacheManager.type().equals(multiCacheProperties.getL1().getType())) {
+                l1CacheManager = new GuavaL1CacheManager();
+            }
+        }
+        L2CacheManager l2CacheManager = null;
+        if (l2CacheManagerOptional.isPresent()) {
+            l2CacheManager = l2CacheManagerOptional.get();
+        }
+        return new MultiCacheManager(l1CacheManager, l2CacheManager, multiCacheProperties);
+
+    }
 
     @Configuration
     @ConditionalOnExpression("#{'${spring.cache.multi.l2.enabled}'=='true' &&" +
@@ -206,34 +237,13 @@ public class MultiCacheAutoConfig {
         }
 
         @Bean
+        @ConditionalOnMissingBean(L2CacheManager.class)
         public L2CacheManager cacheManager(RedisTemplate<Object, Object> redisTemplate,
                                            CacheManagerCustomizers customizerInvoker) {
             RedisL2CacheManager cacheManager = new RedisL2CacheManager(redisTemplate);
             cacheManager.setUsePrefix(true);
             return customizerInvoker.customize(cacheManager);
         }
-    }
-
-
-    @Bean
-    @ConditionalOnExpression("#{'${spring.cache.multi.l1.enabled}'=='true' || " +
-            "'${spring.cache.multi.l1.enabled}'=='true'}")
-    public MultiCacheManager multiCacheManager(Optional<L2CacheManager> l2CacheManagerOptional,
-                                               MultiCacheProperties multiCacheProperties) {
-        L1CacheManager l1CacheManager = null;
-        if (multiCacheProperties.getL1().isEnabled()) {
-            if (CaffeineL1CacheManager.type().equals(multiCacheProperties.getL1().getType())) {
-                 l1CacheManager = new CaffeineL1CacheManager();
-            } else if (GuavaL1CacheManager.type().equals(multiCacheProperties.getL1().getType())) {
-                l1CacheManager = new GuavaL1CacheManager();
-            }
-        }
-        L2CacheManager l2CacheManager = null;
-        if (l2CacheManagerOptional.isPresent()) {
-            l2CacheManager = l2CacheManagerOptional.get();
-        }
-        return new MultiCacheManager(l1CacheManager, l2CacheManager, multiCacheProperties);
-
     }
 
 }

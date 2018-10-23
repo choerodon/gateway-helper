@@ -1,7 +1,7 @@
 package io.choerodon.gateway.helper.api.filter;
 
-import io.choerodon.gateway.helper.domain.RequestContext;
 import io.choerodon.gateway.helper.domain.CheckState;
+import io.choerodon.gateway.helper.domain.RequestContext;
 import org.springframework.cloud.config.client.ZuulRoute;
 import org.springframework.cloud.config.helper.HelperZuulRoutesProperties;
 import org.springframework.stereotype.Component;
@@ -17,6 +17,8 @@ import java.util.Map;
 public class GetRequestRouteFilter implements HelperFilter {
 
     private static final String ZUUL_SERVLET_PATH = "zuul/";
+
+    public static final String REQUEST_KEY_SEPARATOR = ":::";
 
     private final AntPathMatcher matcher = new AntPathMatcher();
 
@@ -52,15 +54,16 @@ public class GetRequestRouteFilter implements HelperFilter {
                     + requestUri + " , all routes: " + helperZuulRoutesProperties.getRoutes().values());
             return false;
         } else {
-            context.setTrueUri(getRequestTruePath(requestUri, route.getPath()));
+            final String trueUri = getRequestTruePath(requestUri, route.getPath());
+            context.setTrueUri(trueUri);
             context.setRoute(route);
-            context.setRequestKey(generateKey(requestUri, context.request.method, route.getServiceId()));
+            context.setRequestKey(generateKey(trueUri, context.request.method, route.getServiceId()));
             return true;
         }
     }
 
-    private  String generateKey(String uri, String method, String service) {
-        return uri + "::" + method + "::" + service;
+    private String generateKey(String uri, String method, String service) {
+        return uri + REQUEST_KEY_SEPARATOR + method + REQUEST_KEY_SEPARATOR + service;
     }
 
 

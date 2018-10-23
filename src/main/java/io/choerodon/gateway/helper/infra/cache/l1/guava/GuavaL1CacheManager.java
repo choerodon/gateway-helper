@@ -1,7 +1,7 @@
-package io.choerodon.gateway.helper.cache.l1.guava;
+package io.choerodon.gateway.helper.infra.cache.l1.guava;
 
-import io.choerodon.gateway.helper.cache.l1.L1Cache;
-import io.choerodon.gateway.helper.cache.l1.L1CacheManager;
+import io.choerodon.gateway.helper.infra.cache.l1.L1Cache;
+import io.choerodon.gateway.helper.infra.cache.l1.L1CacheManager;
 import org.springframework.cache.Cache;
 import org.springframework.cache.guava.GuavaCacheManager;
 import org.springframework.util.StringUtils;

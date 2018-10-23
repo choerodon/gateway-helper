@@ -1,7 +1,7 @@
-package io.choerodon.gateway.helper.cache.l2.redis;
+package io.choerodon.gateway.helper.infra.cache.l2.redis;
 
-import io.choerodon.gateway.helper.cache.l2.L2Cache;
-import io.choerodon.gateway.helper.cache.l2.L2CacheManager;
+import io.choerodon.gateway.helper.infra.cache.l2.L2Cache;
+import io.choerodon.gateway.helper.infra.cache.l2.L2CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;

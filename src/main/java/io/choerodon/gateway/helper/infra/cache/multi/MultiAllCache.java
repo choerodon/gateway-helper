@@ -1,7 +1,7 @@
-package io.choerodon.gateway.helper.cache.multi;
+package io.choerodon.gateway.helper.infra.cache.multi;
 
-import io.choerodon.gateway.helper.cache.l1.L1Cache;
-import io.choerodon.gateway.helper.cache.l2.L2Cache;
+import io.choerodon.gateway.helper.infra.cache.l1.L1Cache;
+import io.choerodon.gateway.helper.infra.cache.l2.L2Cache;
 import org.springframework.cache.Cache;
 
 import java.util.concurrent.Callable;

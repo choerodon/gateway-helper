@@ -1,4 +1,4 @@
-package io.choerodon.gateway.helper.cache.l1;
+package io.choerodon.gateway.helper.infra.cache.l1;
 
 import org.springframework.cache.CacheManager;
 
