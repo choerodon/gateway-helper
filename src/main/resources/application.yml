@@ -22,11 +22,11 @@ spring:
         type: redis
       caches:
         permission:
-          l1-spec: initialCapacity=50,maximumSize=1000,expireAfterWrite=600s
+          l1-spec: initialCapacity=50,maximumSize=500,expireAfterWrite=600s
           l2-spec: expiration=600
-        userDetail:
+        user:
           l1-spec: initialCapacity=50,maximumSize=200,expireAfterWrite=3600s
-          l2-spec: expiration=3600
+          l2-spec: expiration=1800
   cloud:
       stream:
         kafka:
