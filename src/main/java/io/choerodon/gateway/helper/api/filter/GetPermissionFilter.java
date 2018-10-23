@@ -1,10 +1,9 @@
 package io.choerodon.gateway.helper.api.filter;
 
-import com.google.common.cache.Cache;
-import io.choerodon.gateway.helper.domain.RequestContext;
 import io.choerodon.gateway.helper.api.service.PermissionService;
 import io.choerodon.gateway.helper.domain.CheckState;
 import io.choerodon.gateway.helper.domain.PermissionDO;
+import io.choerodon.gateway.helper.domain.RequestContext;
 import org.springframework.stereotype.Component;
 
 /**
@@ -16,12 +15,8 @@ public class GetPermissionFilter implements HelperFilter {
 
     private PermissionService permissionService;
 
-    private Cache<String, PermissionDO> cache;
-
-
-    public GetPermissionFilter(PermissionService permissionService, Cache<String, PermissionDO> cache) {
+    public GetPermissionFilter(PermissionService permissionService) {
         this.permissionService = permissionService;
-        this.cache = cache;
     }
 
     @Override
@@ -37,18 +32,11 @@ public class GetPermissionFilter implements HelperFilter {
     @Override
     public boolean run(RequestContext context) {
         String key = context.getRequestKey();
-        PermissionDO permissionDO = cache.getIfPresent(key);
+        PermissionDO permissionDO = permissionService.selectPermissionByRequest(key);
         if (permissionDO == null) {
-            PermissionDO selectPermission = permissionService.selectPermissionByRequest(context.getTrueUri(),
-                    context.request.method, context.getRoute().getServiceId());
-            if (selectPermission == null) {
-                context.response.setStatus(CheckState.PERMISSION_MISMATCH);
-                context.response.setMessage("This request mismatch any permission");
-                return false;
-            } else {
-                cache.put(key, selectPermission);
-                context.setPermission(selectPermission);
-            }
+            context.response.setStatus(CheckState.PERMISSION_MISMATCH);
+            context.response.setMessage("This request mismatch any permission");
+            return false;
         } else if (permissionDO.getWithin()) {
             context.response.setStatus(CheckState.PERMISSION_WITH_IN);
             context.response.setMessage("No access to within interface");

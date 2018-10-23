@@ -32,7 +32,11 @@ env:
      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://register-server.io-choerodon:8000/eureka/
      SPRING_CLOUD_STREAM_KAFKA_BINDER_BROKERS: kafka-0.kafka-headless.kafka.svc.cluster.local:9092,kafka-1.kafka-headless.kafka.svc.cluster.local:9092,kafka-2.kafka-headless.kafka.svc.cluster.local:9092
      SPRING_CLOUD_STREAM_KAFKA_BINDER_ZK_NODES: zookeeper-0.zookeeper-headless.zookeeper.svc.cluster.local:2181,zookeeper-1.zookeeper-headless.zookeeper.svc.cluster.local:2181,zookeeper-2.zookeeper-headless.zookeeper.svc.cluster.local:2181
-
+     SPRING_CACHE_MULTI_L1_ENABLED: true
+     SPRING_CACHE_MULTI_L2_ENABLED: false
+     SPRING_REDIS_HOST: localhost
+     SPRING_REDIS_PORT: 6379
+     SPRING_REDIS_DATABASE: 4
 service:
   enable: false
   type: ClusterIP

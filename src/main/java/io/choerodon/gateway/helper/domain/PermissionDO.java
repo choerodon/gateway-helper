@@ -7,11 +7,14 @@ import io.choerodon.mybatis.domain.AuditDomain;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 
 @ModifyAudit
 @VersionAudit
 @Table(name = "iam_permission")
-public class PermissionDO extends AuditDomain {
+public class PermissionDO extends AuditDomain implements Serializable {
+
+    private static final long serialVersionUID = -4108102602163313984L;
 
     @Id
     @GeneratedValue

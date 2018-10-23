@@ -12,6 +12,21 @@ spring:
         percentage: 1.0
       stream:
         enabled: true
+  cache:
+    multi:
+      l1:
+        enabled: true # 是否开启一级缓存
+        type: caffeine # 一级缓存实现。目前支持caffeine和guava
+      l2:
+        enabled: false # 是否开启二级缓存
+        type: redis # 二级缓存的实现
+      caches:
+        permission: # 请求对应的权限缓存
+          l1-spec: initialCapacity=50,maximumSize=500,expireAfterWrite=600s
+          l2-spec: expiration=600
+        user: # access_token对应的userDetails缓存
+          l1-spec: initialCapacity=50,maximumSize=200,expireAfterWrite=3600s
+          l2-spec: expiration=1800
   cloud:
       stream:
         kafka:
@@ -24,6 +39,10 @@ spring:
             default-binder: kafka
       bus:
         enabled: true
+  redis:
+    host: localhost
+    port: 6379
+    database: 4
 choerodon:
   helper:
     jwt-key: choerodon # jwt的密钥
