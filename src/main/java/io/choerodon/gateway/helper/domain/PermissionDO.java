@@ -88,6 +88,18 @@ public class PermissionDO extends AuditDomain implements Serializable {
         this.fdLevel = fdLevel;
     }
 
+    public PermissionDO() {
+    }
+
+    public PermissionDO(String path, String method, Boolean publicAccess, Boolean loginAccess, Boolean within, String fdLevel) {
+        this.path = path;
+        this.method = method;
+        this.publicAccess = publicAccess;
+        this.loginAccess = loginAccess;
+        this.within = within;
+        this.fdLevel = fdLevel;
+    }
+
     @Override
     public String toString() {
         return "PermissionDO{" +

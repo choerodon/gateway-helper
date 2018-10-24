@@ -19,6 +19,10 @@ public class GetPermissionFilter implements HelperFilter {
         this.permissionService = permissionService;
     }
 
+    public void setPermissionService(PermissionService permissionService) {
+        this.permissionService = permissionService;
+    }
+
     @Override
     public int filterOrder() {
         return 20;

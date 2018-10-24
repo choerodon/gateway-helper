@@ -43,7 +43,7 @@ public class GetRequestRouteFilter implements HelperFilter {
         //如果是文件上传的url，以/zuul/开否，则去除了/zuul再进行校验权限
         String requestUri = context.request.uri;
         if (requestUri.startsWith("/" + ZUUL_SERVLET_PATH)) {
-            requestUri = requestUri.substring(5, requestUri.length());
+            requestUri = requestUri.substring(5);
 
         }
         //根据请求uri获取zuulRoute
