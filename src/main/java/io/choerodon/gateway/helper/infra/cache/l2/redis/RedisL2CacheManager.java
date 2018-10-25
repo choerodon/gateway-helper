@@ -9,7 +9,6 @@ import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.util.StringUtils;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,15 +26,7 @@ public class RedisL2CacheManager extends RedisCacheManager implements L2CacheMan
         super(redisOperations);
     }
 
-    public RedisL2CacheManager(RedisOperations redisOperations, Collection<String> cacheNames) {
-        super(redisOperations, cacheNames);
-    }
-
-    public RedisL2CacheManager(RedisOperations redisOperations, Collection<String> cacheNames, boolean cacheNullValues) {
-        super(redisOperations, cacheNames, cacheNullValues);
-    }
-
-    public static String type() {
+    public static String  type() {
         return CACHE_TYPE_REDIS;
     }
 

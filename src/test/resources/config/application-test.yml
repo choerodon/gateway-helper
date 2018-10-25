@@ -7,6 +7,14 @@ spring:
       enabled: false
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration, io.choerodon.mybatis.MybatisMapperAutoConfiguration
+  cache:
+    multi:
+      l1:
+        enabled: true
+        type: caffeine
+      l2:
+        enabled: true
+        type: redis
 hystrix:
   stream:
     queue:

@@ -3,6 +3,8 @@ package io.choerodon.gateway.helper
 import io.choerodon.gateway.helper.infra.mapper.PermissionMapper
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Primary
+import org.springframework.data.redis.connection.RedisConnectionFactory
 import spock.mock.DetachedMockFactory
 
 import javax.annotation.PostConstruct
@@ -23,6 +25,12 @@ class IntegrationTestConfiguration {
     @Bean
     PermissionMapper permissionMapper() {
         detachedMockFactory.Mock(PermissionMapper)
+    }
+
+    @Bean
+    @Primary
+    RedisConnectionFactory redisConnectionFactory() {
+        detachedMockFactory.Mock(RedisConnectionFactory)
     }
 
 }

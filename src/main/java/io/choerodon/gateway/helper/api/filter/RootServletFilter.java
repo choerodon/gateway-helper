@@ -37,6 +37,10 @@ public class RootServletFilter implements Filter {
                 .collect(Collectors.toList());
     }
 
+    public void setHelperFilters(List<HelperFilter> helperFilters) {
+        this.helperFilters = helperFilters;
+    }
+
     @Override
     public void init(FilterConfig filterConfig) {
         // do nothing

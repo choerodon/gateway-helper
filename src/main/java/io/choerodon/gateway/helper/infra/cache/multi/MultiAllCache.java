@@ -15,8 +15,8 @@ public class MultiAllCache extends MultiCache {
     private final Cache l1Cache;
     private final Cache l2Cache;
 
-    public MultiAllCache(String name, boolean allowNullValues, L1Cache l1Cache, L2Cache l2Cache) {
-        super(name, allowNullValues);
+    public MultiAllCache(String name, L1Cache l1Cache, L2Cache l2Cache) {
+        super(name);
         this.l1Cache = l1Cache.getCache();
         this.l2Cache = l2Cache.getCache();
     }
@@ -82,7 +82,7 @@ public class MultiAllCache extends MultiCache {
 
     @Override
     public void clear() {
-       l2Cache.clear();
-       l1Cache.clear();
+        l2Cache.clear();
+        l1Cache.clear();
     }
 }

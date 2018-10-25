@@ -9,8 +9,8 @@ public class MultiL2Cache extends MultiCache {
 
     private final Cache l2Cache;
 
-    public MultiL2Cache(String name, boolean allowNullValues, L2Cache l2Cache) {
-        super(name, allowNullValues);
+    public MultiL2Cache(String name, L2Cache l2Cache) {
+        super(name);
         this.l2Cache = l2Cache.getCache();
     }
 
@@ -31,7 +31,7 @@ public class MultiL2Cache extends MultiCache {
 
     @Override
     public void put(Object key, Object value) {
-       l2Cache.put(key, value);
+        l2Cache.put(key, value);
     }
 
     @Override
@@ -41,11 +41,11 @@ public class MultiL2Cache extends MultiCache {
 
     @Override
     public void evict(Object key) {
-       l2Cache.evict(key);
+        l2Cache.evict(key);
     }
 
     @Override
     public void clear() {
-      l2Cache.clear();
+        l2Cache.clear();
     }
 }
