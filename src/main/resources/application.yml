@@ -4,14 +4,14 @@ spring:
     username: choerodon
     password: 123456
   sleuth:
-      integration:
-        enabled: false
-      scheduled:
-        enabled: false
-      sampler:
-        percentage: 1.0
-      stream:
-        enabled: true
+    integration:
+      enabled: false
+    scheduled:
+      enabled: false
+    sampler:
+      percentage: 1.0
+    stream:
+      enabled: true
   cache:
     multi:
       l1:
@@ -28,17 +28,17 @@ spring:
           l1-spec: initialCapacity=50,maximumSize=200,expireAfterWrite=3600s
           l2-spec: expiration=1800
   cloud:
-      stream:
-        kafka:
-          binder:
-            brokers: 127.0.0.1:9092
-            zkNodes: 127.0.0.1:2181
-        bindings:
-          input:
-            destination: eureka-instance
-            default-binder: kafka
-      bus:
-        enabled: true
+    stream:
+      kafka:
+        binder:
+          brokers: 127.0.0.1:9092
+          zkNodes: 127.0.0.1:2181
+      bindings:
+        input:
+          destination: eureka-instance
+      default-binder: kafka
+    bus:
+      enabled: true
   redis:
     host: localhost
     port: 6379
