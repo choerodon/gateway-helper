@@ -1,8 +1,8 @@
 package io.choerodon.gateway.helper.infra.cache.multi;
 
+import io.choerodon.gateway.helper.infra.cache.MultiCacheProperties;
 import io.choerodon.gateway.helper.infra.cache.l1.L1CacheManager;
 import io.choerodon.gateway.helper.infra.cache.l2.L2CacheManager;
-import io.choerodon.gateway.helper.infra.cache.MultiCacheProperties;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.support.NoOpCache;
@@ -30,6 +30,7 @@ public class MultiCacheManager implements CacheManager {
         this.properties = properties;
     }
 
+
     @Override
     public Cache getCache(String name) {
         Cache cache = this.cacheMap.get(name);
@@ -51,24 +52,20 @@ public class MultiCacheManager implements CacheManager {
             config = new MultiCacheProperties.Cache();
         }
         if (config.isL1Enabled() && config.isL2Enabled() && l1CacheManager != null && l2CacheManager != null) {
-            return new MultiAllCache(name, true,
-                    l1CacheManager.getL1Cache(name, config.getL1Spec()), l2CacheManager.getL2Cache(name, config.getL2Spec()));
+            return new MultiAllCache(name, l1CacheManager.getL1Cache(name, config.getL1Spec()),
+                    l2CacheManager.getL2Cache(name, config.getL2Spec()));
         }
         if (config.isL1Enabled() && config.isL2Enabled() && l1CacheManager != null) {
-            return new MultiL1Cache(name, true,
-                    l1CacheManager.getL1Cache(name, config.getL1Spec()));
+            return new MultiL1Cache(name, l1CacheManager.getL1Cache(name, config.getL1Spec()));
         }
         if (config.isL1Enabled() && config.isL2Enabled() && l2CacheManager != null) {
-            return new MultiL2Cache(name, true,
-                    l2CacheManager.getL2Cache(name, config.getL2Spec()));
+            return new MultiL2Cache(name, l2CacheManager.getL2Cache(name, config.getL2Spec()));
         }
         if (config.isL1Enabled() && !config.isL2Enabled() && l1CacheManager != null) {
-            return new MultiL1Cache(name, true,
-                    l1CacheManager.getL1Cache(name, config.getL1Spec()));
+            return new MultiL1Cache(name, l1CacheManager.getL1Cache(name, config.getL1Spec()));
         }
         if (!config.isL1Enabled() && config.isL2Enabled() && l2CacheManager != null) {
-            return new MultiL2Cache(name, true,
-                    l2CacheManager.getL2Cache(name, config.getL2Spec()));
+            return new MultiL2Cache(name, l2CacheManager.getL2Cache(name, config.getL2Spec()));
         }
         return new NoOpCache(name);
     }

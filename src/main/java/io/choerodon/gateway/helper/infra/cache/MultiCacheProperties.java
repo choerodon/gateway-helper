@@ -12,6 +12,8 @@ public class MultiCacheProperties {
 
     private L2 l2;
 
+    private boolean allowNullValues = false;
+
     private Map<String, Cache> caches = new LinkedHashMap<>();
 
     public L1 getL1() {
@@ -38,6 +40,13 @@ public class MultiCacheProperties {
         this.caches = caches;
     }
 
+    public boolean isAllowNullValues() {
+        return allowNullValues;
+    }
+
+    public void setAllowNullValues(boolean allowNullValues) {
+        this.allowNullValues = allowNullValues;
+    }
 
     public static class L1 {
         private String type = "caffeine";
@@ -85,10 +94,8 @@ public class MultiCacheProperties {
     public static class Cache {
         private boolean l1Enabled = true;
         private String l1Spec = "";
-        private boolean l1AllowNullValues = true;
         private boolean l2Enabled = true;
         private String l2Spec = "";
-        private boolean l2AllowNullValues = false;
 
         public boolean isL1Enabled() {
             return l1Enabled;
@@ -114,14 +121,6 @@ public class MultiCacheProperties {
             this.l2Enabled = l2Enabled;
         }
 
-        public boolean isL1AllowNullValues() {
-            return l1AllowNullValues;
-        }
-
-        public void setL1AllowNullValues(boolean l1AllowNullValues) {
-            this.l1AllowNullValues = l1AllowNullValues;
-        }
-
         public String getL2Spec() {
             return l2Spec;
         }
@@ -130,12 +129,5 @@ public class MultiCacheProperties {
             this.l2Spec = l2Spec;
         }
 
-        public boolean isL2AllowNullValues() {
-            return l2AllowNullValues;
-        }
-
-        public void setL2AllowNullValues(boolean l2AllowNullValues) {
-            this.l2AllowNullValues = l2AllowNullValues;
-        }
     }
 }

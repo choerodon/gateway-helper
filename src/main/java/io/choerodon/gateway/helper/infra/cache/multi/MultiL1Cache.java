@@ -9,8 +9,8 @@ public class MultiL1Cache extends MultiCache {
 
     private final Cache l1Cache;
 
-    public MultiL1Cache(String name, boolean allowNullValues, L1Cache l1Cache) {
-        super(name, allowNullValues);
+    public MultiL1Cache(String name, L1Cache l1Cache) {
+        super(name);
         this.l1Cache = l1Cache.getCache();
     }
 

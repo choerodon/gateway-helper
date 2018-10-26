@@ -10,13 +10,6 @@ public class CaffeineL1CacheManager extends CaffeineCacheManager implements L1Ca
 
     private static final String CACHE_TYPE_CAFFEINE = "caffeine";
 
-    public CaffeineL1CacheManager() {
-    }
-
-    public CaffeineL1CacheManager(String... cacheNames) {
-        super(cacheNames);
-    }
-
     @Override
     public L1Cache getL1Cache(String name, String spec) {
         synchronized (this) {

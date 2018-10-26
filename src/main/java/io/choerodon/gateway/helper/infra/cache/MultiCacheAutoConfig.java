@@ -61,8 +61,10 @@ public class MultiCacheAutoConfig {
         if (multiCacheProperties.getL1().isEnabled()) {
             if (CaffeineL1CacheManager.type().equals(multiCacheProperties.getL1().getType())) {
                 l1CacheManager = new CaffeineL1CacheManager();
+                ((CaffeineL1CacheManager) l1CacheManager).setAllowNullValues(multiCacheProperties.isAllowNullValues());
             } else if (GuavaL1CacheManager.type().equals(multiCacheProperties.getL1().getType())) {
                 l1CacheManager = new GuavaL1CacheManager();
+                ((GuavaL1CacheManager) l1CacheManager).setAllowNullValues(multiCacheProperties.isAllowNullValues());
             }
         }
         L2CacheManager l2CacheManager = null;

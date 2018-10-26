@@ -50,6 +50,10 @@ public class GetUserDetailsServiceImpl implements GetUserDetailsService {
         this.helperProperties = helperProperties;
     }
 
+    public void setRestTemplate(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     @Cacheable(value = "user", key = "'choerodon:userdetails:'+#token", unless = "#result.customUserDetails == null")
