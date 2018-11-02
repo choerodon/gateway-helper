@@ -12,7 +12,7 @@
 
     <artifactId>gateway-helper</artifactId>
     <properties>
-        <choerodon.starters.version>0.6.3.RELEASE</choerodon.starters.version>
+        <choerodon.starters.version>0.7.0.RELEASE</choerodon.starters.version>
     </properties>
 
     <dependencies>
@@ -52,6 +52,10 @@
             <groupId>io.choerodon</groupId>
             <artifactId>choerodon-starter-mybatis-mapper</artifactId>
             <version>${choerodon.starters.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
         </dependency>
         <dependency>
             <groupId>io.choerodon</groupId>

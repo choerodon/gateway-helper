@@ -1,12 +1,12 @@
 package io.choerodon.gateway.helper.api.service.impl;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.choerodon.core.oauth.CustomUserDetails;
-import io.choerodon.gateway.helper.api.service.GetUserDetailsService;
-import io.choerodon.gateway.helper.domain.CheckState;
-import io.choerodon.gateway.helper.domain.CustomUserDetailsWithResult;
-import io.choerodon.gateway.helper.infra.properties.HelperProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
@@ -18,9 +18,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Map;
+import io.choerodon.core.oauth.CustomUserDetails;
+import io.choerodon.gateway.helper.api.service.GetUserDetailsService;
+import io.choerodon.gateway.helper.domain.CheckState;
+import io.choerodon.gateway.helper.domain.CustomUserDetailsWithResult;
+import io.choerodon.gateway.helper.infra.properties.HelperProperties;
 
 @Service
 public class GetUserDetailsServiceImpl implements GetUserDetailsService {
@@ -29,6 +31,8 @@ public class GetUserDetailsServiceImpl implements GetUserDetailsService {
     private static final Logger LOGGER = LoggerFactory.getLogger(GetUserDetailsService.class);
 
     private static final String PRINCIPAL = "principal";
+
+    private static final String OAUTH2REQUEST = "oauth2Request";
 
     private static final String ADDITION_INFO = "additionInfo";
 
@@ -94,19 +98,39 @@ public class GetUserDetailsServiceImpl implements GetUserDetailsService {
 
     @SuppressWarnings("unchecked")
     private CustomUserDetails extractPrincipal(Map<String, Object> map) {
+        boolean isClientOnly = false;
         if (map.get(PRINCIPAL) != null) {
             map = (Map) map.get(PRINCIPAL);
+        }
+        if (map.get(OAUTH2REQUEST) != null) {
+            Map<String, Object> oauth2request = (Map) map.get(OAUTH2REQUEST);
+            if (oauth2request.get("grantType").equals("client_credentials")) {
+                isClientOnly = true;
+            }
         }
         if (map.containsKey("userId")) {
             CustomUserDetails user = new CustomUserDetails((String) map.get("username"),
                     "unknown password", Collections.emptyList());
-            user.setUserId((long) (Integer) map.get("userId"));
-            user.setLanguage((String) map.get("language"));
-            user.setAdmin((Boolean) map.get("admin"));
-            user.setTimeZone((String) map.get("timeZone"));
-            user.setOrganizationId((long) (Integer) map.get("organizationId"));
-            if (map.get("email") != null) {
-                user.setEmail((String) map.get("email"));
+            if(map.get("userId")!=null){
+                user.setUserId((long) (Integer) map.get("userId"));
+                user.setLanguage((String) map.get("language"));
+                user.setAdmin((Boolean) map.get("admin"));
+                user.setTimeZone((String) map.get("timeZone"));
+                user.setOrganizationId((long) (Integer) map.get("organizationId"));
+                if (map.get("email") != null) {
+                    user.setEmail((String) map.get("email"));
+                }
+            }
+            if (isClientOnly) {
+                user.setClientId((long) (Integer) map.get("clientId"));
+                user.setClientName((String) map.get("clientName"));
+                user.setClientAccessTokenValiditySeconds((Integer) map.get("clientAccessTokenValiditySeconds"));
+                user.setClientRefreshTokenValiditySeconds((Integer) map.get("clientRefreshTokenValiditySeconds"));
+                user.setClientAuthorizedGrantTypes((Set) map.get("clientAuthorizedGrantTypes"));
+                user.setClientAutoApproveScopes((Set) map.get("clientAutoApproveScopes"));
+                user.setClientRegisteredRedirectUri((Set) map.get("clientRegisteredRedirectUri"));
+                user.setClientResourceIds((Set) map.get("clientResourceIds"));
+                user.setClientScope((Set) map.get("clientScope"));
             }
             try {
                 if (map.get(ADDITION_INFO) != null) {
