@@ -129,7 +129,7 @@ public class GetUserDetailsServiceImpl implements GetUserDetailsService {
                 user.setClientRefreshTokenValiditySeconds((Integer) map.get("clientRefreshTokenValiditySeconds"));
                 user.setClientAuthorizedGrantTypes((Collection<String>) map.get("clientAuthorizedGrantTypes"));
                 user.setClientAutoApproveScopes((Collection<String>) map.get("clientAutoApproveScopes"));
-                user.setClientRegisteredRedirectUri((Set) map.get("clientRegisteredRedirectUri"));
+                user.setClientRegisteredRedirectUri((Collection<String>)map.get("clientRegisteredRedirectUri"));
                 user.setClientResourceIds((Collection<String>) map.get("clientResourceIds"));
                 user.setClientScope((Collection<String>) map.get("clientScope"));
             }
