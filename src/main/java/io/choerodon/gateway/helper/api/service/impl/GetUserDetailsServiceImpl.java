@@ -1,13 +1,11 @@
 package io.choerodon.gateway.helper.api.service.impl;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.choerodon.core.oauth.CustomUserDetails;
+import io.choerodon.gateway.helper.api.service.GetUserDetailsService;
+import io.choerodon.gateway.helper.domain.CheckState;
+import io.choerodon.gateway.helper.domain.CustomUserDetailsWithResult;
+import io.choerodon.gateway.helper.infra.properties.HelperProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
@@ -19,11 +17,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import io.choerodon.core.oauth.CustomUserDetails;
-import io.choerodon.gateway.helper.api.service.GetUserDetailsService;
-import io.choerodon.gateway.helper.domain.CheckState;
-import io.choerodon.gateway.helper.domain.CustomUserDetailsWithResult;
-import io.choerodon.gateway.helper.infra.properties.HelperProperties;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 @Service
 public class GetUserDetailsServiceImpl implements GetUserDetailsService {
@@ -37,12 +34,7 @@ public class GetUserDetailsServiceImpl implements GetUserDetailsService {
 
     private static final String ADDITION_INFO = "additionInfo";
 
-    private static final String OAUTH_TOKEN_ERROR_CODE = "invalid_token";
-
-    private static final String OAUTH_TOKEN_INVALID = "Invalid access token";
-
-    private static final String OAUTH_TOKEN_EXPIRED = "Access token expired";
-
+    private static final String USER_ID = "userId";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -72,25 +64,13 @@ public class GetUserDetailsServiceImpl implements GetUserDetailsService {
                 CustomUserDetails userDetails = extractPrincipal(objectMapper.readValue(responseEntity.getBody(), Map.class));
                 return new CustomUserDetailsWithResult(userDetails, CheckState.SUCCESS_PASS_SITE);
             } else {
-                JsonNode jsonNode = objectMapper.readTree(responseEntity.getBody());
-                JsonNode errorNode = jsonNode.get("error");
-                JsonNode errorDescriptionNode = jsonNode.get("error_description");
-                if (errorNode != null && errorDescriptionNode != null && OAUTH_TOKEN_ERROR_CODE.equals(errorNode.textValue())) {
-                    if (errorDescriptionNode.textValue().contains(OAUTH_TOKEN_INVALID)) {
-                        return new CustomUserDetailsWithResult(CheckState.PERMISSION_ACCESS_TOKEN_INVALID,
-                                "Access_token is invalid, Please re-login and set correct access_token by HTTP header 'Authorization'");
-                    } else if (errorDescriptionNode.textValue().contains(OAUTH_TOKEN_EXPIRED)) {
-                        return new CustomUserDetailsWithResult(CheckState.PERMISSION_ACCESS_TOKEN_EXPIRED,
-                                "Access_token is expired, Please re-login and set correct access_token by HTTP header 'Authorization'");
-                    }
-                }
                 return new CustomUserDetailsWithResult(CheckState.PERMISSION_GET_USE_DETAIL_FAILED,
-                        "Get userDetail from oauth-server failed, Please re-login and retry。 " +
-                                "oauth-server message: " + responseEntity.getBody());
+                        "Get customUserDetails error from oauth-server, token: " + token + " response: " + responseEntity);
             }
         } catch (RestClientException e) {
-            return new CustomUserDetailsWithResult(CheckState.EXCEPTION_OAUTH_SERVER,
-                    "Oauth server exception, can't get userDetails, exception: " + e);
+            LOGGER.warn("Get customUserDetails error from oauth-server, token: {}", token, e);
+            return new CustomUserDetailsWithResult(CheckState.PERMISSION_ACCESS_TOKEN_EXPIRED,
+                    "Access_token is expired or invalid, Please re-login and set correct access_token by HTTP header 'Authorization'");
         } catch (IOException e) {
             return new CustomUserDetailsWithResult(CheckState.EXCEPTION_GATEWAY_HELPER,
                     "Gateway helper error happened: " + e.toString());
@@ -109,11 +89,17 @@ public class GetUserDetailsServiceImpl implements GetUserDetailsService {
         if (map.get(PRINCIPAL) != null) {
             map = (Map) map.get(PRINCIPAL);
         }
-        if (map.containsKey("userId")) {
+
+        return setUserDetails(map, isClientOnly);
+    }
+
+    @SuppressWarnings("unchecked")
+    private CustomUserDetails setUserDetails(final Map<String, Object> map, boolean isClientOnly) {
+        if (map.containsKey(USER_ID)) {
             CustomUserDetails user = new CustomUserDetails((String) map.get("username"),
                     "unknown password", Collections.emptyList());
-            if(map.get("userId")!=null){
-                user.setUserId((long) (Integer) map.get("userId"));
+            if (map.get(USER_ID) != null) {
+                user.setUserId((long) (Integer) map.get(USER_ID));
                 user.setLanguage((String) map.get("language"));
                 user.setAdmin((Boolean) map.get("admin"));
                 user.setTimeZone((String) map.get("timeZone"));
@@ -129,7 +115,7 @@ public class GetUserDetailsServiceImpl implements GetUserDetailsService {
                 user.setClientRefreshTokenValiditySeconds((Integer) map.get("clientRefreshTokenValiditySeconds"));
                 user.setClientAuthorizedGrantTypes((Collection<String>) map.get("clientAuthorizedGrantTypes"));
                 user.setClientAutoApproveScopes((Collection<String>) map.get("clientAutoApproveScopes"));
-                user.setClientRegisteredRedirectUri((Collection<String>)map.get("clientRegisteredRedirectUri"));
+                user.setClientRegisteredRedirectUri((Collection<String>) map.get("clientRegisteredRedirectUri"));
                 user.setClientResourceIds((Collection<String>) map.get("clientResourceIds"));
                 user.setClientScope((Collection<String>) map.get("clientScope"));
             }

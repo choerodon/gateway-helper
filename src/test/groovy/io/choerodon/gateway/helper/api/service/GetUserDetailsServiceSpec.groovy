@@ -33,7 +33,7 @@ class GetUserDetailsServiceSpec extends Specification {
 
         then: '验证结果'
         result1.customUserDetails == null
-        result1.state == CheckState.PERMISSION_ACCESS_TOKEN_INVALID
+        result1.state == CheckState.PERMISSION_GET_USE_DETAIL_FAILED
 
 
         when: '当oauth返回token过期时'
@@ -42,7 +42,7 @@ class GetUserDetailsServiceSpec extends Specification {
 
         then: '验证结果'
         result2.customUserDetails == null
-        result2.state == CheckState.PERMISSION_ACCESS_TOKEN_EXPIRED
+        result2.state == CheckState.PERMISSION_GET_USE_DETAIL_FAILED
     }
 
     class MockOkRestTemplate extends RestTemplate {
