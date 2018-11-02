@@ -1,6 +1,7 @@
 package io.choerodon.gateway.helper.api.service.impl;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -126,11 +127,11 @@ public class GetUserDetailsServiceImpl implements GetUserDetailsService {
                 user.setClientName((String) map.get("clientName"));
                 user.setClientAccessTokenValiditySeconds((Integer) map.get("clientAccessTokenValiditySeconds"));
                 user.setClientRefreshTokenValiditySeconds((Integer) map.get("clientRefreshTokenValiditySeconds"));
-                user.setClientAuthorizedGrantTypes((Set) map.get("clientAuthorizedGrantTypes"));
-                user.setClientAutoApproveScopes((Set) map.get("clientAutoApproveScopes"));
+                user.setClientAuthorizedGrantTypes((Collection<String>) map.get("clientAuthorizedGrantTypes"));
+                user.setClientAutoApproveScopes((Collection<String>) map.get("clientAutoApproveScopes"));
                 user.setClientRegisteredRedirectUri((Set) map.get("clientRegisteredRedirectUri"));
-                user.setClientResourceIds((Set) map.get("clientResourceIds"));
-                user.setClientScope((Set) map.get("clientScope"));
+                user.setClientResourceIds((Collection<String>) map.get("clientResourceIds"));
+                user.setClientScope((Collection<String>) map.get("clientScope"));
             }
             try {
                 if (map.get(ADDITION_INFO) != null) {
