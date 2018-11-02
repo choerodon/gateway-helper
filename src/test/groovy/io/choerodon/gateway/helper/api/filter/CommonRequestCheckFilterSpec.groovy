@@ -32,16 +32,17 @@ class CommonRequestCheckFilterSpec extends Specification {
         def permission = new PermissionDO('v1/{project_id}', 'get', false, false, false, 'project')
         permission.setId(0L)
         def emptyPermissionMapper = Mock(PermissionMapper) {
-            selectSourceIdsByUserIdAndPermission(_, _, _) >> Collections.emptyList()
+            selectSourceIdsByUserIdAndPermission(_,_, _, _) >> Collections.emptyList()
         }
         def matchPermissionMapper = Mock(PermissionMapper) {
-            selectSourceIdsByUserIdAndPermission(_, _, _) >> Collections.singletonList(23L)
+            selectSourceIdsByUserIdAndPermission(_,_, _, _) >> Collections.singletonList(23L)
         }
         def commonRequestCheckFilter = new CommonRequestCheckFilter(emptyPermissionMapper)
         def context = new RequestContext(null, new CheckResponse(message: "message", status: CheckState.SUCCESS_PASS_SITE))
         context.setPermission(permission)
         def userDetails = new CustomUserDetails('user', 'pass', Collections.emptyList())
         userDetails.setUserId(1L)
+        userDetails.setClientId(1L)
         context.setCustomUserDetails(userDetails)
 
         when: '无权限匹配时调用run'

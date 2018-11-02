@@ -1,15 +1,17 @@
 package io.choerodon.gateway.helper.api.filter;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
+
 import io.choerodon.core.iam.ResourceLevel;
 import io.choerodon.gateway.helper.domain.CheckState;
 import io.choerodon.gateway.helper.domain.PermissionDO;
 import io.choerodon.gateway.helper.domain.RequestContext;
 import io.choerodon.gateway.helper.infra.mapper.PermissionMapper;
-import org.springframework.stereotype.Component;
-import org.springframework.util.AntPathMatcher;
-
-import java.util.List;
-import java.util.Map;
 
 /**
  * 普通接口(除公共接口，loginAccess接口，内部接口以外的接口)
@@ -48,9 +50,26 @@ public class CommonRequestCheckFilter implements HelperFilter {
     @Override
     public boolean run(RequestContext context) {
         PermissionDO permission = context.getPermission();
-        List<Long> sourceIds = permissionMapper.selectSourceIdsByUserIdAndPermission(
-                context.getCustomUserDetails().getUserId(),
-                context.getPermission().getId(), context.getPermission().getFdLevel());
+        Long memberId;
+        String memberType;
+        List<Long> sourceIds = new ArrayList<>();
+        if (context.getCustomUserDetails().getClientId() != null) {
+            memberId = context.getCustomUserDetails().getClientId();
+            memberType = "client";
+            List<Long> longs = permissionMapper.selectSourceIdsByUserIdAndPermission(
+                    memberId, memberType,
+                    context.getPermission().getId(), context.getPermission().getFdLevel());
+            sourceIds.addAll(longs);
+        }
+
+        if (context.getCustomUserDetails().getUserId() != null) {
+            memberId = context.getCustomUserDetails().getUserId();
+            memberType = "user";
+            List<Long> longs = permissionMapper.selectSourceIdsByUserIdAndPermission(
+                    memberId, memberType,
+                    context.getPermission().getId(), context.getPermission().getFdLevel());
+            sourceIds.addAll(longs);
+        }
         if (sourceIds.isEmpty()) {
             context.response.setStatus(CheckState.PERMISSION_NOT_PASS);
             context.response.setMessage("No access to this interface");
