@@ -17,7 +17,8 @@ public interface PermissionMapper extends BaseMapper<PermissionDO> {
     List<PermissionDO> selectPermissionByMethodAndService(@Param("method") String method,
                                                           @Param("service") String service);
 
-    List<Long> selectSourceIdsByUserIdAndPermission(@Param("userId") long userId,
+    List<Long> selectSourceIdsByUserIdAndPermission(@Param("memberId") long memberId,
+                                                    @Param("memberType") String memberType,
                                                     @Param("permissionId") long permissionId,
                                                     @Param("sourceType") String sourceType);
 

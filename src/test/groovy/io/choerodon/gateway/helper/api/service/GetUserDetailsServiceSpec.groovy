@@ -49,8 +49,7 @@ class GetUserDetailsServiceSpec extends Specification {
 
         @Override
         def ResponseEntity<String> exchange(String url, HttpMethod method, HttpEntity<?> requestEntity, Class<String> responseType, Object... uriVariables) throws RestClientException {
-            return new ResponseEntity<String>('{"username":"admin","userId":23,"language":"ZH","admin":true,"timeZone":"timeZone",' +
-                    '"organizationId":23,"email":"email", "additionInfo":{}}', HttpStatus.OK)
+            return new ResponseEntity<String>('{"oauth2Request": {"grantType": "client_credentials"},\t"principal": {"username": "admin","userId": 23,"language": "ZH","admin": true,"timeZone": "timeZone","organizationId": 23,"email": "email","clientId": 1,"clientName": "client","additionInfo": {}}}', HttpStatus.OK)
         }
 
     }
