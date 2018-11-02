@@ -99,14 +99,14 @@ public class GetUserDetailsServiceImpl implements GetUserDetailsService {
     @SuppressWarnings("unchecked")
     private CustomUserDetails extractPrincipal(Map<String, Object> map) {
         boolean isClientOnly = false;
-        if (map.get(PRINCIPAL) != null) {
-            map = (Map) map.get(PRINCIPAL);
-        }
         if (map.get(OAUTH2REQUEST) != null) {
             Map<String, Object> oauth2request = (Map) map.get(OAUTH2REQUEST);
             if (oauth2request.get("grantType").equals("client_credentials")) {
                 isClientOnly = true;
             }
+        }
+        if (map.get(PRINCIPAL) != null) {
+            map = (Map) map.get(PRINCIPAL);
         }
         if (map.containsKey("userId")) {
             CustomUserDetails user = new CustomUserDetails((String) map.get("username"),
