@@ -98,12 +98,12 @@ public class GetUserDetailsServiceImpl implements GetUserDetailsService {
         if (map.containsKey(USER_ID)) {
             CustomUserDetails user = new CustomUserDetails((String) map.get("username"),
                     "unknown password", Collections.emptyList());
+            user.setOrganizationId((long) (Integer) map.get("organizationId"));
             if (map.get(USER_ID) != null) {
                 user.setUserId((long) (Integer) map.get(USER_ID));
                 user.setLanguage((String) map.get("language"));
                 user.setAdmin((Boolean) map.get("admin"));
                 user.setTimeZone((String) map.get("timeZone"));
-                user.setOrganizationId((long) (Integer) map.get("organizationId"));
                 if (map.get("email") != null) {
                     user.setEmail((String) map.get("email"));
                 }
