@@ -38,6 +38,7 @@ env:
      SPRING_REDIS_PORT: 6379
      SPRING_REDIS_DATABASE: 4
 
+     JAVA_OPTS: -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap
 service:
   enable: false
   type: ClusterIP
