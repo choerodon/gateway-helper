@@ -3,7 +3,6 @@ package io.choerodon.gateway.helper.api.filter
 import io.choerodon.core.exception.CommonException
 import io.choerodon.gateway.helper.domain.CheckState
 import io.choerodon.gateway.helper.domain.RequestContext
-import io.choerodon.gateway.helper.infra.exception.PermissionMultiplyMatchException
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
 import spock.lang.Specification
@@ -17,18 +16,8 @@ class RootServletFilterSpec extends Specification {
         def req = new MockHttpServletRequest('GET', '/iam/v1/test')
         def res = new MockHttpServletResponse()
 
-        and: '创建RootServletFilter'
-        def rootServletFilter = new RootServletFilter(Optional.of(Collections.singletonList(new PmmFilter())))
-
-        when: '抛出PermissionMultiplyMatchException异常时调用'
-        rootServletFilter.doFilter(req, res, null)
-
-        then: '判断状态码和header'
-        res.status == 500
-        res.getHeader('request-status') == 'API_ERROR_MATCH_MULTIPLY'
-
         when: '抛出Exception异常时调用'
-        rootServletFilter.setHelperFilters(Collections.singletonList(new ExceptionFilter()))
+        def rootServletFilter = new RootServletFilter(Optional.of(Collections.singletonList(new ExceptionFilter())))
         res.setCommitted(false)
         rootServletFilter.doFilter(req, res, null)
 
@@ -59,23 +48,6 @@ class RootServletFilterSpec extends Specification {
         res.getHeader('request-code') != null
         res.getHeader('request-message') != null
         res.getHeader(HEADER_JWT) != null
-    }
-
-    class PmmFilter implements HelperFilter {
-        @Override
-        int filterOrder() {
-            return 0
-        }
-
-        @Override
-        boolean shouldFilter(RequestContext context) {
-            return true
-        }
-
-        @Override
-        boolean run(RequestContext context) {
-            throw new PermissionMultiplyMatchException('/iam/v1/test', 'get', Collections.emptyList())
-        }
     }
 
     class ExceptionFilter implements HelperFilter {
