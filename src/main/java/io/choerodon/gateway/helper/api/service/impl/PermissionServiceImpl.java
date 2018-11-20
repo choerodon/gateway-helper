@@ -17,6 +17,8 @@ public class PermissionServiceImpl implements PermissionService {
 
     private final AntPathMatcher matcher = new AntPathMatcher();
 
+    private static final String SLASH_END = "/";
+
     private PermissionMapper permissionMapper;
 
     public PermissionServiceImpl(PermissionMapper permissionMapper) {
@@ -33,7 +35,7 @@ public class PermissionServiceImpl implements PermissionService {
         List<PermissionDO> matchPermissions = permissionDOS.stream().filter(t -> matcher.match(t.getPath(), uri)).collect(Collectors.toList());
         if (matchPermissions.size() > 1) {
             for (PermissionDO permissionDO : matchPermissions) {
-                if (uri.equals(permissionDO.getPath())) {
+                if (equalsPath(uri, permissionDO.getPath())) {
                     return permissionDO;
                 }
             }
@@ -41,6 +43,16 @@ public class PermissionServiceImpl implements PermissionService {
             return matchPermissions.get(0);
         }
         return null;
+    }
+
+    private boolean equalsPath(String path1, String path2) {
+        if (path1.endsWith(SLASH_END)) {
+            path1 = path1.substring(0, path1.length() - 1);
+        }
+        if (path2.endsWith(SLASH_END)) {
+            path2 = path2.substring(0, path2.length() - 1);
+        }
+        return path1.equals(path2);
     }
 
 }
