@@ -43,7 +43,6 @@ choerodon:
       skip-paths: /**/skip/**, /oauth/**,/prometheus,/health,/env,/metrics,/favicon.ico # 跳过权限校验路径
       cache-seconds: 600 # 请求地址和对应的权限缓存时间
       cache-size: 3000  # 请求地址和对应的权限缓存大小
-      check-multiply-match: false # 是否开启权限全匹配，开启后避免一个请求可匹配到多条权限的情况
 mybatis:
   mapperLocations: classpath*:/mapper/*.xml
   configuration:
