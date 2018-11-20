@@ -8,7 +8,7 @@ import java.util.List;
 @ConfigurationProperties(prefix = "choerodon.helper")
 public class HelperProperties {
 
-   private Permission permission = new Permission();
+    private Permission permission = new Permission();
 
     private String jwtKey = "choerodon";
 
@@ -47,8 +47,6 @@ public class HelperProperties {
 
         private Long cacheSize = 5000L;
 
-        private Boolean checkMultiplyMatch = false;
-
         public Boolean getEnabled() {
             return enabled;
         }
@@ -81,12 +79,5 @@ public class HelperProperties {
             this.cacheSize = cacheSize;
         }
 
-        public Boolean getCheckMultiplyMatch() {
-            return checkMultiplyMatch;
-        }
-
-        public void setCheckMultiplyMatch(Boolean checkMultiplyMatch) {
-            this.checkMultiplyMatch = checkMultiplyMatch;
-        }
     }
 }
