@@ -67,7 +67,7 @@ zuul:
       stripPrefix: false
     notify:
       path: /notify/**
-      serviceId: notification-service
+      serviceId: ntify-service
     manager:
       path: /manager/**
       serviceId: manager-service
@@ -77,6 +77,9 @@ zuul:
     org:
       path: /org/**
       serviceId: organization-service
+    asgard:
+      path: /asgard/**
+      serviceId: asgard-service
   semaphore:
     max-semaphores: 300
   sensitiveHeaders: Cookie,Set-Cookie

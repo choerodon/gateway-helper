@@ -3,10 +3,13 @@ package io.choerodon.gateway.helper.api.service.impl;
 import io.choerodon.gateway.helper.api.service.PermissionService;
 import io.choerodon.gateway.helper.domain.PermissionDO;
 import io.choerodon.gateway.helper.infra.mapper.PermissionMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.AntPathMatcher;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,9 +18,9 @@ import static io.choerodon.gateway.helper.api.filter.GetRequestRouteFilter.REQUE
 @Service
 public class PermissionServiceImpl implements PermissionService {
 
-    private final AntPathMatcher matcher = new AntPathMatcher();
+    private static final Logger LOGGER = LoggerFactory.getLogger(PermissionService.class);
 
-    private static final String SLASH_END = "/";
+    private final AntPathMatcher matcher = new AntPathMatcher();
 
     private PermissionMapper permissionMapper;
 
@@ -25,6 +28,11 @@ public class PermissionServiceImpl implements PermissionService {
         this.permissionMapper = permissionMapper;
     }
 
+    /**
+     * Cacheable 设置使用二级缓存
+     * 先通过method和service从数据库中查询权限；
+     * 如果匹配到多条权限，则排序计算出匹配度最高的权限
+     */
     @Override
     @Cacheable(value = "permission", key = "'choerodon:permission:'+#requestKey", unless = "#result == null")
     public PermissionDO selectPermissionByRequest(String requestKey) {
@@ -32,27 +40,22 @@ public class PermissionServiceImpl implements PermissionService {
         String uri = request[0];
         String method = request[1];
         List<PermissionDO> permissionDOS = permissionMapper.selectPermissionByMethodAndService(method, request[2]);
-        List<PermissionDO> matchPermissions = permissionDOS.stream().filter(t -> matcher.match(t.getPath(), uri)).collect(Collectors.toList());
-        if (matchPermissions.size() > 1) {
-            for (PermissionDO permissionDO : matchPermissions) {
-                if (equalsPath(uri, permissionDO.getPath())) {
-                    return permissionDO;
-                }
+        List<PermissionDO> matchPermissions = permissionDOS.stream().filter(t -> matcher.match(t.getPath(), uri))
+                .sorted((PermissionDO o1, PermissionDO o2) -> {
+                    Comparator<String> patternComparator = matcher.getPatternComparator(uri);
+                    return patternComparator.compare(o1.getPath(), o2.getPath());
+                }).collect(Collectors.toList());
+        int matchSize = matchPermissions.size();
+        if (matchSize < 1) {
+            return null;
+        } else {
+            PermissionDO bestMatchPermission = matchPermissions.get(0);
+            if (matchSize > 1) {
+                LOGGER.info("Request match multiply permission: {}, the best match is: {}", matchPermissions, bestMatchPermission.getPath());
             }
-        } else if (matchPermissions.size() == 1) {
-            return matchPermissions.get(0);
+            return bestMatchPermission;
         }
-        return null;
     }
 
-    private boolean equalsPath(String path1, String path2) {
-        if (path1.endsWith(SLASH_END)) {
-            path1 = path1.substring(0, path1.length() - 1);
-        }
-        if (path2.endsWith(SLASH_END)) {
-            path2 = path2.substring(0, path2.length() - 1);
-        }
-        return path1.equals(path2);
-    }
 
 }
