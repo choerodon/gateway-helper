@@ -29,6 +29,8 @@ public class RootServletFilter implements Filter {
 
     private List<HelperFilter> helperFilters;
 
+    private static final String CONFIG_ENDPOINT = "/choerodon/config";
+
     public RootServletFilter(Optional<List<HelperFilter>> optionalHelperFilters) {
         helperFilters = optionalHelperFilters.orElseGet(Collections::emptyList)
                 .stream()
@@ -46,9 +48,13 @@ public class RootServletFilter implements Filter {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
+        if (CONFIG_ENDPOINT.equals(req.getRequestURI())) {
+            chain.doFilter(request, res);
+            return;
+        }
         RequestContext requestContext = new RequestContext(new CheckRequest(req.getHeader(HEADER_TOKEN),
                 req.getRequestURI(), req.getMethod().toLowerCase()), new CheckResponse());
         CheckResponse checkResponse = requestContext.response;
