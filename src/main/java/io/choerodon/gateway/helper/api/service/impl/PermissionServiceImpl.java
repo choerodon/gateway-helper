@@ -51,7 +51,8 @@ public class PermissionServiceImpl implements PermissionService {
         } else {
             PermissionDO bestMatchPermission = matchPermissions.get(0);
             if (matchSize > 1) {
-                LOGGER.info("Request match multiply permission: {}, the best match is: {}", matchPermissions, bestMatchPermission.getPath());
+                LOGGER.info("Request: {} match multiply permission: {}, the best match is: {}",
+                        uri, matchPermissions, bestMatchPermission.getPath());
             }
             return bestMatchPermission;
         }
