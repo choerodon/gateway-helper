@@ -15,9 +15,6 @@ spring:
         permission: # 请求对应的权限缓存
           l1-spec: initialCapacity=50,maximumSize=500,expireAfterWrite=600s
           l2-spec: expiration=600
-        user: # access_token对应的userDetails缓存
-          l1-spec: initialCapacity=50,maximumSize=200,expireAfterWrite=300s
-          l2-spec: expiration=300
   redis:
     host: localhost
     port: 6379
