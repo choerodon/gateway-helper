@@ -8,7 +8,6 @@ import io.choerodon.gateway.helper.domain.CustomUserDetailsWithResult;
 import io.choerodon.gateway.helper.infra.properties.HelperProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -53,7 +52,6 @@ public class GetUserDetailsServiceImpl implements GetUserDetailsService {
 
     @Override
     @SuppressWarnings("unchecked")
-    @Cacheable(value = "user", key = "'choerodon:userdetails:'+#token", unless = "#result.customUserDetails == null")
     public CustomUserDetailsWithResult getUserDetails(String token) {
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.AUTHORIZATION, token);
