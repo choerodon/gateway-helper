@@ -93,6 +93,17 @@ public enum CheckState {
      */
     PERMISSION_GET_USE_DETAIL_FAILED(410, "error.permission.getUserDetailsFromOauthServer"),
 
+
+    /**
+     * 该项目已经被禁用
+     */
+    PERMISSION_DISABLED_PROJECT(411, "error.permission.projectDisabled"),
+
+    /**
+     * 该组织已经被禁用
+     */
+    PERMISSION_DISABLED_ORG(412, "error.permission.organizationDisabled"),
+
     /**
      * 访问过于频繁
      */

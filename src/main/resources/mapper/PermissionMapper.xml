@@ -20,4 +20,12 @@
         WHERE imr.source_type = #{sourceType} AND imr.member_id = #{memberId} AND imr.member_type = #{memberType} AND irp.permission_id = #{permissionId}
     </select>
 
+    <select id="projectEnabled" resultType="java.lang.Boolean">
+        SELECT is_enabled FROM fd_project WHERE id = #{sourceId}
+    </select>
+
+    <select id="organizationEnabled" resultType="java.lang.Boolean">
+        SELECT is_enabled FROM fd_organization WHERE id = #{sourceId}
+    </select>
+
 </mapper>

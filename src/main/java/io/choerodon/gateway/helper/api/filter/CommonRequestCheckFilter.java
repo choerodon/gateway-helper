@@ -92,7 +92,11 @@ public class CommonRequestCheckFilter implements HelperFilter {
             context.response.setStatus(CheckState.API_ERROR_PROJECT_ID);
             context.response.setMessage("Project interface must have 'project_id' in path");
         } else {
-            if (sourceIds.stream().anyMatch(t -> t.equals(projectId))) {
+            Boolean isEnabled = permissionMapper.projectEnabled(projectId);
+            if (isEnabled != null && !isEnabled) {
+                context.response.setStatus(CheckState.PERMISSION_DISABLED_PROJECT);
+                context.response.setMessage("The project has been disabled, projectId: " + projectId);
+            } else if (sourceIds.stream().anyMatch(t -> t.equals(projectId))) {
                 context.response.setStatus(CheckState.SUCCESS_PASS_PROJECT);
                 context.response.setMessage("Have access to this 'project-level' interface, permission: " + context.getPermission());
             } else {
@@ -110,7 +114,11 @@ public class CommonRequestCheckFilter implements HelperFilter {
             context.response.setStatus(CheckState.API_ERROR_ORG_ID);
             context.response.setMessage("Organization interface must have 'organization_id' in path");
         } else {
-            if (sourceIds.stream().anyMatch(t -> t.equals(orgId))) {
+            Boolean isEnabled = permissionMapper.organizationEnabled(orgId);
+            if (isEnabled != null && !isEnabled) {
+                context.response.setStatus(CheckState.PERMISSION_DISABLED_ORG);
+                context.response.setMessage("The organization has been disabled, organizationId: " + orgId);
+            } else if (sourceIds.stream().anyMatch(t -> t.equals(orgId))) {
                 context.response.setStatus(CheckState.SUCCESS_PASS_ORG);
                 context.response.setMessage("Have access to this 'organization-level' interface, permission: " + context.getPermission());
             } else {

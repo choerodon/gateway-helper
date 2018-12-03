@@ -22,4 +22,7 @@ public interface PermissionMapper extends BaseMapper<PermissionDO> {
                                                     @Param("permissionId") long permissionId,
                                                     @Param("sourceType") String sourceType);
 
+    Boolean projectEnabled(@Param("sourceId") Long sourceId);
+
+    Boolean organizationEnabled(@Param("sourceId") Long sourceId);
 }
