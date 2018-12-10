@@ -1,5 +1,6 @@
 package io.choerodon.gateway.helper.api.filter;
 
+import io.choerodon.gateway.helper.domain.PermissionDO;
 import io.choerodon.gateway.helper.domain.RequestContext;
 import io.choerodon.gateway.helper.domain.TranceSpan;
 import org.springframework.cloud.config.client.ZuulRoute;
@@ -27,7 +28,7 @@ public class CollectSpanFilter implements HelperFilter {
 
     @Override
     public int filterOrder() {
-        return 15;
+        return 25;
     }
 
     @Override
@@ -38,10 +39,10 @@ public class CollectSpanFilter implements HelperFilter {
     @Override
     public boolean run(RequestContext context) {
         ZuulRoute zuulRoute = context.getRoute();
-        String trueUrl = context.getTrueUri();
+        PermissionDO permissionDO = context.getPermission();
         String serviceId = zuulRoute.getServiceId();
         String method = context.request.method;
-        TranceSpan tranceSpan = new TranceSpan(trueUrl, serviceId, method, System.currentTimeMillis());
+        TranceSpan tranceSpan = new TranceSpan(permissionDO.getPath(), serviceId, method, System.currentTimeMillis());
         Observable
                 .just(tranceSpan)
                 .subscribeOn(Schedulers.io())

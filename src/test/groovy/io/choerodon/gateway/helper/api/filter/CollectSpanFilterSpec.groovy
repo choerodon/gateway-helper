@@ -2,6 +2,7 @@ package io.choerodon.gateway.helper.api.filter
 
 import io.choerodon.gateway.helper.domain.CheckRequest
 import io.choerodon.gateway.helper.domain.CheckResponse
+import io.choerodon.gateway.helper.domain.PermissionDO
 import io.choerodon.gateway.helper.domain.RequestContext
 import org.springframework.cloud.config.client.ZuulRoute
 import org.springframework.data.redis.core.StringRedisTemplate
@@ -18,7 +19,7 @@ class CollectSpanFilterSpec extends Specification {
         when:
         def result = collectSpanFilter.filterOrder()
         then:
-        result == 15
+        result == 25
     }
 
     def "ShouldFilter"() {
@@ -34,7 +35,10 @@ class CollectSpanFilterSpec extends Specification {
         RequestContext requestContext = new RequestContext(request, Mock(CheckResponse))
         ZuulRoute route = Mock(ZuulRoute)
         requestContext.setRoute(route)
-        requestContext.setTrueUri("/v1/users/self")
+//        requestContext.setTrueUri("/v1/users/self")
+        PermissionDO permissionDO = Mock(PermissionDO)
+        requestContext.setPermission(permissionDO)
+        permissionDO.getPath() >> "/v1/users/self"
         route.getServiceId() >> "iam-service"
 
         stringRedisTemplate.hasKey(_) >> false
