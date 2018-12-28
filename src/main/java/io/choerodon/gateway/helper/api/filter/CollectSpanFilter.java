@@ -51,7 +51,9 @@ public class CollectSpanFilter implements HelperFilter {
 
     private void tranceSpanSubscriber(final TranceSpan tranceSpan) {
         String service = tranceSpan.getService();
-        StringBuilder builder = new StringBuilder(tranceSpan.getToday().toString());
+        StringBuilder builder =
+                new StringBuilder(tranceSpan.getToday().toString())
+                        .append(":").append("zSet");
         String serviceInvokeKey = builder.toString();
         staticInvokeCount(serviceInvokeKey, service);
 
