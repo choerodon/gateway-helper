@@ -1,5 +1,7 @@
 package io.choerodon.gateway.helper.domain;
 
+import java.time.LocalDate;
+
 /**
  * @author superlee
  */
@@ -11,15 +13,15 @@ public class TranceSpan {
 
     private String method;
 
-    private Long currentTimeMillis;
+    private LocalDate today;
 
     public TranceSpan() {}
 
-    public TranceSpan(String url, String service, String method, Long currentTimeMillis) {
+    public TranceSpan(String url, String service, String method, LocalDate today) {
         this.url = url;
         this.service = service;
         this.method = method;
-        this.currentTimeMillis = currentTimeMillis;
+        this.today = today;
     }
 
     public String getUrl() {
@@ -46,12 +48,12 @@ public class TranceSpan {
         this.method = method;
     }
 
-    public Long getCurrentTimeMillis() {
-        return currentTimeMillis;
+    public LocalDate getToday() {
+        return today;
     }
 
-    public void setCurrentTimeMillis(Long currentTimeMillis) {
-        this.currentTimeMillis = currentTimeMillis;
+    public void setToday(LocalDate today) {
+        this.today = today;
     }
 
     @Override
@@ -60,7 +62,7 @@ public class TranceSpan {
                 "url='" + url + '\'' +
                 ", service='" + service + '\'' +
                 ", method='" + method + '\'' +
-                ", currentTimeMillis=" + currentTimeMillis +
+                ", today=" + today +
                 '}';
     }
 }
