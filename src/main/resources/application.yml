@@ -52,7 +52,7 @@ zuul:
       stripPrefix: false
     notify:
       path: /notify/**
-      serviceId: ntify-service
+      serviceId: notify-service
     manager:
       path: /manager/**
       serviceId: manager-service
