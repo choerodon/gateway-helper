@@ -31,6 +31,10 @@ public class RootServletFilter implements Filter {
 
     private static final String CONFIG_ENDPOINT = "/choerodon/config";
 
+    private static final String ACCESS_TOKEN_PREFIX = "bearer";
+
+    private static final String ACCESS_TOKEN_PARAM = "access_token";
+
     public RootServletFilter(Optional<List<HelperFilter>> optionalHelperFilters) {
         helperFilters = optionalHelperFilters.orElseGet(Collections::emptyList)
                 .stream()
@@ -55,7 +59,7 @@ public class RootServletFilter implements Filter {
             chain.doFilter(request, res);
             return;
         }
-        RequestContext requestContext = new RequestContext(new CheckRequest(req.getHeader(HEADER_TOKEN),
+        RequestContext requestContext = new RequestContext(new CheckRequest(parse(req),
                 req.getRequestURI(), req.getMethod().toLowerCase()), new CheckResponse());
         CheckResponse checkResponse = requestContext.response;
         try {
@@ -98,6 +102,25 @@ public class RootServletFilter implements Filter {
     @Override
     public void destroy() {
         // do nothing
+    }
+
+    private String parse(final HttpServletRequest req) {
+        String token = req.getHeader(HEADER_TOKEN);
+        if (token == null && req.getQueryString() != null && req.getQueryString().contains(ACCESS_TOKEN_PARAM)) {
+            for (String i : req.getQueryString().split("&")) {
+                if (i.startsWith(ACCESS_TOKEN_PARAM)) {
+                    token = i.substring(ACCESS_TOKEN_PARAM.length() + 1);
+                }
+            }
+        }
+        if (token != null) {
+            if (token.startsWith(ACCESS_TOKEN_PREFIX)) {
+                token = token.replaceFirst("%20", " ");
+            } else {
+                token = ACCESS_TOKEN_PREFIX + " " + token;
+            }
+        }
+        return token;
     }
 
 }
