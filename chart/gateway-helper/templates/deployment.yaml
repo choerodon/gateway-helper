@@ -42,7 +42,7 @@ spec:
             exec:
               command:
               - curl
-              - localhost:{{ .Values.deployment.managementPort }}/health
+              - localhost:{{ .Values.deployment.managementPort }}/actuator/health
             failureThreshold: 3
             initialDelaySeconds: 60
             periodSeconds: 10
