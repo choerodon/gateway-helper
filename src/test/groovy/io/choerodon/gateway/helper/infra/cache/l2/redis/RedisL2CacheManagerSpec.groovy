@@ -1,7 +1,7 @@
 package io.choerodon.gateway.helper.infra.cache.l2.redis
 
 import org.springframework.data.redis.cache.RedisCache
-import org.springframework.data.redis.core.RedisOperations
+import org.springframework.data.redis.connection.RedisConnectionFactory
 import spock.lang.Specification
 
 class RedisL2CacheManagerSpec extends Specification {
@@ -16,7 +16,7 @@ class RedisL2CacheManagerSpec extends Specification {
 
     def "test get L2 Cache"() {
         when:
-        def result = new RedisL2CacheManager(Mock(RedisOperations)).getL2Cache("name", "expiration=1800")
+        def result = new RedisL2CacheManager(Mock(RedisConnectionFactory)).getL2Cache("name", "expiration=1800")
 
         then:
         result != null
