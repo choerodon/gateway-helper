@@ -47,7 +47,6 @@ zuul:
       serviceId: iam-service
     oauth:
       path: /oauth/**
-      sensitiveHeaders:
       serviceId: oauth-server
       stripPrefix: false
     notify:
