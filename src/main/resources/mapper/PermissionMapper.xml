@@ -5,7 +5,7 @@
     <select id="selectPermissionByMethodAndService"
             resultType="io.choerodon.gateway.helper.domain.PermissionDO">
         SELECT
-        id,path,method,public_access,login_access,within,fd_level
+        id,path,method,public_access,login_access,is_within,fd_level
         FROM
         iam_permission
         WHERE
