@@ -13,6 +13,5 @@ spring:
       uri: http://localhost:8010
       fail-fast: true
 management:
-  port: 9181
-  security:
-    enabled: false
+  server:
+    port: 9181

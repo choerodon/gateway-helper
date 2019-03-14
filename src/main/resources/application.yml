@@ -3,6 +3,17 @@ spring:
     url: jdbc:mysql://127.0.0.1/iam_service?useUnicode=true&characterEncoding=utf-8&useSSL=false
     username: choerodon
     password: 123456
+  redis:
+    host: localhost
+    port: 6379
+    database: 4
+    lettuce:
+      shutdown-timeout: 200ms
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 2
+        max-wait: -1ms
   cache:
     multi:
       l1:
@@ -15,10 +26,6 @@ spring:
         permission: # 请求对应的权限缓存
           l1-spec: initialCapacity=50,maximumSize=500,expireAfterWrite=600s
           l2-spec: expiration=600
-  redis:
-    host: localhost
-    port: 6379
-    database: 4
 choerodon:
   helper:
     jwt-key: choerodon # jwt的密钥
@@ -95,9 +102,6 @@ security:
       grant-type: client_credentials
     resource:
       userInfoUri: http://oauth-server/oauth/api/user
-  ignored:
-    - /oauth/**
-    - /**/skip/**
 logging:
   level:
     com.netflix.discovery.DiscoveryClient: warn

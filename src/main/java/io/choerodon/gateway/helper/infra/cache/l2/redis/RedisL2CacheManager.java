@@ -5,10 +5,14 @@ import io.choerodon.gateway.helper.infra.cache.l2.L2CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
+import org.springframework.data.redis.cache.RedisCache;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
-import org.springframework.data.redis.core.RedisOperations;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.lang.Nullable;
 import org.springframework.util.StringUtils;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -22,18 +26,19 @@ public class RedisL2CacheManager extends RedisCacheManager implements L2CacheMan
 
     private static final Map<String, Long> expires = new ConcurrentHashMap<>();
 
-    public RedisL2CacheManager(RedisOperations redisOperations) {
-        super(redisOperations);
+    public RedisL2CacheManager(RedisConnectionFactory connectionFactory) {
+        super(new DefaultRedisCacheWriter(connectionFactory), RedisCacheConfiguration.defaultCacheConfig().disableCachingNullValues());
     }
 
-    public static String  type() {
+
+    public static String type() {
         return CACHE_TYPE_REDIS;
     }
 
     @Override
     public L2Cache getL2Cache(String name, String spec) {
         synchronized (this) {
-            if (spec != null && StringUtils.hasText(spec)) {
+            if (StringUtils.hasText(spec)) {
                 this.setCacheSpecification(name, spec);
             }
             Cache cache = this.getCache(name);
@@ -44,11 +49,20 @@ public class RedisL2CacheManager extends RedisCacheManager implements L2CacheMan
         }
     }
 
+    @Override
+    protected RedisCache getMissingCache(String name) {
+        Long expiresSeconds = expires.get(name);
+        if (expiresSeconds != null) {
+            return createRedisCache(name, RedisCacheConfiguration.defaultCacheConfig().disableCachingNullValues().entryTtl(Duration.ofSeconds(expiresSeconds)));
+        } else {
+            return createRedisCache(name, RedisCacheConfiguration.defaultCacheConfig().disableCachingNullValues());
+        }
+    }
+
     private void setCacheSpecification(final String name, final String spec) {
         for (String option : spec.split(SPLIT_OPTIONS)) {
             parseOption(name, option);
         }
-        this.setExpires(expires);
     }
 
     private void parseOption(final String name, final String option) {
