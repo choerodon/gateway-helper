@@ -15,3 +15,7 @@ spring:
 management:
   server:
     port: 9181
+  endpoints:
+    web:
+      exposure:
+        include: '*'
