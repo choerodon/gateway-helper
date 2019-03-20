@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="io.choerodon.gateway.helper.infra.mapper.PermissionMapper">
 
-    <resultMap id="PermissionDO" type="io.choerodon.iam.infra.dataobject.PermissionDO">
+    <resultMap id="PermissionDO" type="io.choerodon.gateway.helper.domain.PermissionDO">
         <id column="id" property="id"></id>
         <result column="fd_level" property="level" jdbcType="VARCHAR"/>
         <result column="fd_resource" property="resource" jdbcType="VARCHAR"/>
