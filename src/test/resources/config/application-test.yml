@@ -25,7 +25,8 @@ eureka:
   client:
     enabled: false
 management:
-  port: 0 #设置管理端口为随机端口
+  server:
+    port: 0 #设置管理端口为随机端口
 choerodon:
   swagger:
     skip:

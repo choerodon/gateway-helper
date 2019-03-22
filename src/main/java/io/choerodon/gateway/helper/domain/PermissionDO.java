@@ -4,6 +4,7 @@ import io.choerodon.mybatis.annotation.ModifyAudit;
 import io.choerodon.mybatis.annotation.VersionAudit;
 import io.choerodon.mybatis.domain.AuditDomain;
 
+import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -28,6 +29,7 @@ public class PermissionDO extends AuditDomain implements Serializable {
 
     private Boolean loginAccess;
 
+    @Column(name = "is_within")
     private Boolean within;
 
     private String fdLevel;

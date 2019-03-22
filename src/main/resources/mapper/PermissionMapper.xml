@@ -2,10 +2,15 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="io.choerodon.gateway.helper.infra.mapper.PermissionMapper">
 
+    <resultMap id="PermissionDO" type="io.choerodon.gateway.helper.domain.PermissionDO">
+        <id column="id" property="id"></id>
+        <result property="within" column="is_within" jdbcType="BOOLEAN"/>
+    </resultMap>
+
     <select id="selectPermissionByMethodAndService"
-            resultType="io.choerodon.gateway.helper.domain.PermissionDO">
+            resultMap="PermissionDO">
         SELECT
-        id,path,method,public_access,login_access,within,fd_level
+        id,path,method,public_access,login_access,is_within,fd_level
         FROM
         iam_permission
         WHERE
