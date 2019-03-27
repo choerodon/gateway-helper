@@ -51,7 +51,7 @@ service:
   name: gateway-helper
 
 metrics:
-  path: /prometheus
+  path: /actuator/prometheus
   label: spring-boot
 
 logs:
