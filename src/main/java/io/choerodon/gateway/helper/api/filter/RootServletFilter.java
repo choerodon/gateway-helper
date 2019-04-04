@@ -33,6 +33,8 @@ public class RootServletFilter implements Filter {
 
     private static final String ACCESS_TOKEN_PREFIX = "bearer";
 
+    private static final String ACCESS_TOKEN_PREFIX_UPPER_STARTED = "Bearer";
+
     private static final String ACCESS_TOKEN_PARAM = "access_token";
 
     public RootServletFilter(Optional<List<HelperFilter>> optionalHelperFilters) {
@@ -114,6 +116,9 @@ public class RootServletFilter implements Filter {
             }
         }
         if (token != null) {
+            if (token.startsWith(ACCESS_TOKEN_PREFIX_UPPER_STARTED)) {
+                token = token.replace(ACCESS_TOKEN_PREFIX_UPPER_STARTED, ACCESS_TOKEN_PREFIX);
+            }
             if (token.startsWith(ACCESS_TOKEN_PREFIX)) {
                 token = token.replaceFirst("%20", " ");
             } else {
