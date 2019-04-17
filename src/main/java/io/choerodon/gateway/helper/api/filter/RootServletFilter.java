@@ -116,9 +116,9 @@ public class RootServletFilter implements Filter {
             }
         }
         if (token != null) {
-//            if (token.startsWith(ACCESS_TOKEN_PREFIX_UPPER_STARTED)) {
-//                token = token.replace(ACCESS_TOKEN_PREFIX_UPPER_STARTED, ACCESS_TOKEN_PREFIX);
-//            }
+            if (token.startsWith(ACCESS_TOKEN_PREFIX_UPPER_STARTED)) {
+                token = token.replace(ACCESS_TOKEN_PREFIX_UPPER_STARTED, ACCESS_TOKEN_PREFIX);
+            }
             if (token.startsWith(ACCESS_TOKEN_PREFIX)) {
                 token = token.replaceFirst("%20", " ");
             } else {
